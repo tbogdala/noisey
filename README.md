@@ -40,7 +40,7 @@ r := rand.New(rand.NewSource(int64(1)))
 // create a new perlin noise generator using the RNG created above
 perlin := noisey.NewPerlinGenerator2D(r, 256)
 
-// get the noise value at point (0.4, 0.2) and use 'fast' smoothing
+// get the noise value at point (0.4, 0.2) and use 'Standard' smoothing
 v := perlin.Get(0.4, 0.2, noisey.StandardQuality)
 ```
 
