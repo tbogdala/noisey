@@ -1,4 +1,4 @@
-noisey: a go library for coherent random noise
+noisey: a Go library for coherent random noise
 ==============================================
 
 This library natively implements coherent noise algorithms in Go. No 3rd party libraries are required.
@@ -32,7 +32,7 @@ Full examples can be found in the `examples` folder, but this fragment will illu
 ```go
 import "github.com/tbogdala/noisey"
 
-// ... yadda yadda ...
+// ... yadda yadda yadda ...
 
 // create a new RNG from Go's built in library with a seed of '1'
 r := rand.New(rand.NewSource(int64(1)))
