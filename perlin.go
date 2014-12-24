@@ -24,9 +24,9 @@ import (
 
 // Enumeration controlling the quality of smoothing done in the noise calcualtions
 const (
-	FastQuality     = iota
-	StandardQuality = iota
-	HighQuality     = iota
+	FastQuality = iota
+	StandardQuality
+	HighQuality
 )
 
 // RandomSource is a generic interface for a random number generator
