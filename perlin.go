@@ -1,15 +1,22 @@
 package noisey
 
-// The Perlin noise math FAQ:
-// http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html
-//
-// Other helpful links:
-// * http://www.angelcode.com/dev/perlin/perlin.html
-// * https://code.google.com/p/fractalterraingeneration/wiki/Perlin_Noise#Algorithm
-// * http://libnoise.sourceforge.net/noisegen/index.html
+/* Copyright 2014, Timothy Bogdala <tdb@animal-machine.com>
+See the LICENSE file for more details. */
 
-// Based in part off of an implementation of perlin noise by github.com/nsf
-// posted here: https://gist.github.com/nsf/1170424#file-test-go
+/*
+
+The Perlin noise math FAQ:
+http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html
+
+Other helpful links:
+  * http://www.angelcode.com/dev/perlin/perlin.html
+  * https://code.google.com/p/fractalterraingeneration/wiki/Perlin_Noise#Algorithm
+  * http://libnoise.sourceforge.net/noisegen/index.html
+
+Based in part off of an implementation of perlin noise by github.com/nsf
+posted here: https://gist.github.com/nsf/1170424#file-test-go
+
+*/
 
 import (
 	"math"

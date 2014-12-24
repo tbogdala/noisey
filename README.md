@@ -44,6 +44,8 @@ perlin := noisey.NewPerlinGenerator2D(r, 256)
 v := perlin.Get(0.4, 0.2, noisey.StandardQuality)
 ```
 
+Samples that display noise to console or OpenGL windows are included.
+
 
 To Do
 -----

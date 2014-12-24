@@ -1,5 +1,8 @@
 package main
 
+/* Copyright 2014, Timothy Bogdala <tdb@animal-machine.com>
+See the LICENSE file for more details. */
+
 import (
 	"bufio"
 	"fmt"
