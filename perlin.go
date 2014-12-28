@@ -47,6 +47,7 @@ type PerlinGenerator2D struct {
 	Rng                 RandomSource // random number generator interface
 	Permutations        []int        // the random permutation table
 	RandomGradients     []Vec2f      // the random gradient table
+	Quality int // controls the blending of values (FastQuality|StandardQuality|HighQuality)
 	calculatedGradients [4]Vec2f     // the last calculated gradient table
 	calculatedOrigins   [4]Vec2f     // the last calculated origins table
 }
@@ -58,8 +59,9 @@ func (pg *PerlinGenerator2D) makeRandomGradient2D() Vec2f {
 }
 
 // NewPerlinGenerator2D creates a new state object for the 2D perlin noise generator
-func NewPerlinGenerator2D(rng RandomSource, tableSize int) (pg PerlinGenerator2D) {
+func NewPerlinGenerator2D(rng RandomSource, tableSize int, quality int) (pg PerlinGenerator2D) {
 	pg.Rng = rng
+	pg.Quality = quality
 	pg.Permutations = rng.Perm(tableSize)
 	pg.RandomGradients = make([]Vec2f, tableSize)
 	for i := range pg.RandomGradients {
@@ -116,7 +118,7 @@ func lerp(a, b, v float64) float64 {
 }
 
 // Get calculates the perlin noise at a given coordinate.
-func (pg *PerlinGenerator2D) Get(x float64, y float64, quality int) float64 {
+func (pg *PerlinGenerator2D) Get(x float64, y float64) float64 {
 	pg.calcGradientsAndOrigins(x, y)
 
 	p := Vec2f{x, y}
@@ -127,7 +129,7 @@ func (pg *PerlinGenerator2D) Get(x float64, y float64, quality int) float64 {
 
 	// smooth out the interpolation of the noise depending on the selected quality
 	var fx, fy float64
-	switch quality {
+	switch pg.Quality {
 	case StandardQuality:
 		fx = calcCubicSCurve(x - pg.calculatedOrigins[0].X)
 		fy = calcCubicSCurve(y - pg.calculatedOrigins[0].Y)

@@ -22,13 +22,13 @@ func main() {
 
 	// create a new perlin noise generator with a 'standard' 256 int
 	// table of random permutations
-	perlin := noisey.NewPerlinGenerator2D(r, 256)
+	perlin := noisey.NewPerlinGenerator2D(r, 256, noisey.StandardQuality)
 
 	// make an ascii pixel image by calculating random noise
 	pixels := make([]float64, imageSize*imageSize)
 	for y := 0; y < imageSize; y++ {
 		for x := 0; x < imageSize; x++ {
-			v := perlin.Get(float64(x)*0.1, float64(y)*0.1, noisey.FastQuality)
+			v := perlin.Get(float64(x)*0.1, float64(y)*0.1)
 			v = v*0.5 + 0.5
 			pixels[y*imageSize+x] = v
 		}
