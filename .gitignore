@@ -1,3 +1,4 @@
 examples/glfw3.dll
 examples/noise_gl.exe
 examples/noise_text_image.exe
+examples/noise_builder_gl.exe

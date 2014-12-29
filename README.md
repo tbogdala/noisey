@@ -7,6 +7,8 @@ Currently it supports the following:
 
 * 2D (64-bit) [perlin noise][link1]
 
+**IMPORTANT: This is a new library and API stability is not guaranteed.**
+
 
 Installation
 ------------
@@ -38,10 +40,31 @@ import "github.com/tbogdala/noisey"
 r := rand.New(rand.NewSource(int64(1)))
 
 // create a new perlin noise generator using the RNG created above
-perlin := noisey.NewPerlinGenerator2D(r, 256)
+perlin := noisey.NewPerlinGenerator2D(r, 256, noisey.StandardQuality)
 
-// get the noise value at point (0.4, 0.2) and use 'Standard' smoothing
-v := perlin.Get(0.4, 0.2, noisey.StandardQuality)
+// get the noise value at point (0.4, 0.2)
+v := perlin.Get(0.4, 0.2)
+```
+
+Another, more complicated example:
+
+```go
+import "github.com/tbogdala/noisey"
+
+// ... yadda yadda yadda ...
+
+// create a new RNG from Go's built in library with a seed of '1'
+r := rand.New(rand.NewSource(int64(1)))
+
+// create a new perlin noise generator using the RNG created above
+perlin := noisey.NewPerlinGenerator2D(r, 256, noisey.HighQuality)
+perlin.Octaves = 5
+perlin.Persistence = 0.25
+perlin.Lacunarity = 2.0
+perlin.Frequency = 1.13
+
+// get the noise value at point (0.4, 0.2)
+v := perlin.Get(0.4, 0.2)
 ```
 
 Samples that display noise to console or OpenGL windows are included.

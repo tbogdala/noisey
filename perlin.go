@@ -47,7 +47,11 @@ type PerlinGenerator2D struct {
 	Rng                 RandomSource // random number generator interface
 	Permutations        []int        // the random permutation table
 	RandomGradients     []Vec2f      // the random gradient table
-	Quality int // controls the blending of values (FastQuality|StandardQuality|HighQuality)
+	Quality             int          // controls the blending of values (FastQuality|StandardQuality|HighQuality)
+	Octaves             int          // the number of octaves to calculate on each Get()
+	Persistence         float64      // a multiplier that determines how quickly the amplitudes diminish for each successive octave
+	Lacunarity          float64      // a multiplier that determines how quickly the frequency increases for each successive octave
+	Frequency           float64      // the number of cycles per unit length
 	calculatedGradients [4]Vec2f     // the last calculated gradient table
 	calculatedOrigins   [4]Vec2f     // the last calculated origins table
 }
@@ -64,6 +68,10 @@ func NewPerlinGenerator2D(rng RandomSource, tableSize int, quality int) (pg Perl
 	pg.Quality = quality
 	pg.Permutations = rng.Perm(tableSize)
 	pg.RandomGradients = make([]Vec2f, tableSize)
+	pg.Octaves = 1
+	pg.Persistence = 1.0
+	pg.Lacunarity = 2.0
+	pg.Frequency = 1.0
 	for i := range pg.RandomGradients {
 		pg.RandomGradients[i] = pg.makeRandomGradient2D()
 	}
@@ -117,8 +125,9 @@ func lerp(a, b, v float64) float64 {
 	return a*(1-v) + b*v
 }
 
-// Get calculates the perlin noise at a given coordinate.
-func (pg *PerlinGenerator2D) Get(x float64, y float64) float64 {
+// GetRawValue calculates the perlin noise at a given coordinate without regard
+// to the advanced settings of Octaves, Persistence, etc...
+func (pg *PerlinGenerator2D) GetRawValue(x float64, y float64) float64 {
 	pg.calcGradientsAndOrigins(x, y)
 
 	p := Vec2f{x, y}
@@ -144,4 +153,24 @@ func (pg *PerlinGenerator2D) Get(x float64, y float64) float64 {
 	vx0 := lerp(v0, v1, fx)
 	vx1 := lerp(v2, v3, fx)
 	return lerp(vx0, vx1, fy)
+}
+
+// Get calculates the noise value over the number of Octaves and other parameters
+// that scale the coordinates over each octave.
+func (pg *PerlinGenerator2D) Get(x float64, y float64) (v float64) {
+	curPersistence := 1.0
+
+	x *= pg.Frequency
+	y *= pg.Frequency
+
+	for o := 0; o < pg.Octaves; o++ {
+		signal := pg.GetRawValue(x, y)
+		v += signal * curPersistence
+
+		x *= pg.Lacunarity
+		y *= pg.Lacunarity
+		curPersistence *= pg.Persistence
+	}
+
+	return
 }
