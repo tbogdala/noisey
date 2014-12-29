@@ -69,7 +69,7 @@ func NewPerlinGenerator2D(rng RandomSource, tableSize int, quality int) (pg Perl
 	pg.Permutations = rng.Perm(tableSize)
 	pg.RandomGradients = make([]Vec2f, tableSize)
 	pg.Octaves = 1
-	pg.Persistence = 1.0
+	pg.Persistence = 0.5
 	pg.Lacunarity = 2.0
 	pg.Frequency = 1.0
 	for i := range pg.RandomGradients {

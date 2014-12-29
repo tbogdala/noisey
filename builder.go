@@ -3,14 +3,19 @@ package noisey
 /* Copyright 2014, Timothy Bogdala <tdb@animal-machine.com>
 See the LICENSE file for more details. */
 
+/* This module contains code to easily build 'maps' of random noise. */
+
+// BuilderSource2D is an interface defining how the Builder* types get noise.
 type BuilderSource2D interface {
 	Get(float64, float64) float64
 }
 
+// Builder2DBounds is a simple rectangle type.
 type Builder2DBounds struct {
 	MinX, MinY, MaxX, MaxY float64
 }
 
+// Builder2D contains the parameters and data for the noise 'map' generated with Build().
 type Builder2D struct {
 	Source BuilderSource2D
 	Width  int
@@ -19,6 +24,7 @@ type Builder2D struct {
 	Values []float64
 }
 
+// NewBuilder2D creates a new 2D noise 'map' builder of the given size
 func NewBuilder2D(s BuilderSource2D, width int, height int) (b Builder2D) {
 	b.Source = s
 	b.Width = width
@@ -27,6 +33,8 @@ func NewBuilder2D(s BuilderSource2D, width int, height int) (b Builder2D) {
 	return
 }
 
+// Build gets noise from Source for each spot in the data array. These steps
+// are real numbers so that Bounds does not have to match Width/Height.
 func (b *Builder2D) Build() {
 	// setup the initial parameters controlling how the noise is sampled
 	xExtent := b.Bounds.MaxX - b.Bounds.MinX
