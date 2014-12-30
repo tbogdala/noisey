@@ -5,6 +5,8 @@ See the LICENSE file for more details. */
 
 /* This module contains code to easily build 'maps' of random noise. */
 
+import "math"
+
 // BuilderSource2D is an interface defining how the Builder* types get noise.
 type BuilderSource2D interface {
 	Get(float64, float64) float64
@@ -53,4 +55,23 @@ func (b *Builder2D) Build() {
 		}
 		yCur += yDelta
 	}
+}
+
+// GetMinMax returns the lowest and the highest Values
+func (b *Builder2D) GetMinMax() (min float64, max float64) {
+	var low float64 = math.MaxFloat64
+	var high float64 = math.SmallestNonzeroFloat64
+
+	totalIndex := b.Width*b.Height
+	for i:=0; i<totalIndex; i++ {
+		v := b.Values[i]
+		if v < low {
+			low = v
+		}
+		if v > high {
+			high = v
+		}
+	}
+
+	return low, high
 }
