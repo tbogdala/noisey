@@ -5,7 +5,8 @@ This library natively implements coherent noise algorithms in Go. No 3rd party l
 
 Currently it supports the following:
 
-* 2D (64-bit) [perlin noise][link1]
+* 2D (64-bit) [Perlin noise][link1]
+* 2D (64-bit) [OpenSimplex noise][link3]
 
 **IMPORTANT: This is a new library and API stability is not guaranteed.**
 
@@ -29,7 +30,7 @@ import "github.com/tbogdala/noisey"
 Usage
 -----
 
-Full examples can be found in the `examples` folder, but this fragment will illustrate basic usage of perlin noise:
+Full examples can be found in the `examples` folder, but this fragment will illustrate basic usage of Perlin noise:
 
 ```go
 import "github.com/tbogdala/noisey"
@@ -40,7 +41,7 @@ import "github.com/tbogdala/noisey"
 r := rand.New(rand.NewSource(int64(1)))
 
 // create a new perlin noise generator using the RNG created above
-perlin := noisey.NewPerlinGenerator2D(r, 256, noisey.StandardQuality)
+perlin := noisey.NewPerlinGenerator2D(r, noisey.StandardQuality)
 
 // get the noise value at point (0.4, 0.2)
 v := perlin.Get(0.4, 0.2)
@@ -57,24 +58,36 @@ import "github.com/tbogdala/noisey"
 r := rand.New(rand.NewSource(int64(1)))
 
 // create a new perlin noise generator using the RNG created above
-perlin := noisey.NewPerlinGenerator2D(r, 256, noisey.HighQuality)
+perlin := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
 perlin.Octaves = 5
-perlin.Persistence = 0.25
+perlin.Persistence = 0.5
 perlin.Lacunarity = 2.0
-perlin.Frequency = 1.13
+perlin.Frequency = 1.0
 
 // get the noise value at point (0.4, 0.2)
 v := perlin.Get(0.4, 0.2)
 ```
 
-Samples that display noise to console or OpenGL windows are included.
+Samples that display noise to console or OpenGL windows are included. If the
+OpenGL examples are desired, you must also install the Go libraries
+`github.com/go-gl/gl` and `github.com/go-gl/glfw3`
+
+Other noise generators like OpenSimple can be used in similar manner. Just
+create the noise generator with the constructor by passing a random number generator:
+
+```go
+// create a new RNG from Go's built in library with a seed of '1'
+r := rand.New(rand.NewSource(int64(1)))
+
+// create a new OpenSimplex noise generator using the RNG created above
+opensimplex := noisey.NewOpenSimplexGenerator2D(r)
+```
 
 
 To Do
 -----
 
-* fractal Brownian motion
-* 3D perlin noise
+* 3D noise algorithms
 * a way to combine noise generators and modifiers to support
 things like libnoise's [complex planetary surface][link2]
 
@@ -88,3 +101,4 @@ Noisey is released under the BSD license. See the `LICENSE` file for more detail
 
 [link1]: http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html
 [link2]: http://libnoise.sourceforge.net/examples/complexplanet/index.html
+[link3]: http://uniblock.tumblr.com/post/97868843242/noise
