@@ -29,18 +29,12 @@ const (
 	HighQuality
 )
 
-// RandomSource is a generic interface for a random number generator
-// allowing the user to use the built-in RNG or a custom one that implements
-// this interface.
-type RandomSource interface {
-	Float64() float64
-	Perm(int) []int
-}
+const (
+	tableSize = 256
+)
 
-// Vec2f is a simple 2D vector of 64 bit floats
-type Vec2f struct {
-	X, Y float64
-}
+
+
 
 // PerlinGenerator stores the state information for generating perlin noise.
 type PerlinGenerator2D struct {
@@ -63,7 +57,7 @@ func (pg *PerlinGenerator2D) makeRandomGradient2D() Vec2f {
 }
 
 // NewPerlinGenerator2D creates a new state object for the 2D perlin noise generator
-func NewPerlinGenerator2D(rng RandomSource, tableSize int, quality int) (pg PerlinGenerator2D) {
+func NewPerlinGenerator2D(rng RandomSource, quality int) (pg PerlinGenerator2D) {
 	pg.Rng = rng
 	pg.Quality = quality
 	pg.Permutations = rng.Perm(tableSize)

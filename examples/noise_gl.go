@@ -248,7 +248,7 @@ func createTextureFromRGB(rgb []byte, imageSize int) gl.Texture {
 func generateNoiseImage(imageSize int, r noisey.RandomSource) []byte {
 	// create a new perlin noise generator with a 'standard' 256 int
 	// table of random permutations and using HighQuality noise smoothing
-	perlin := noisey.NewPerlinGenerator2D(r, 256, noisey.HighQuality)
+	perlin := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
 
 	// make an pixel image by calculating random noise and creating
 	// an RGB byte triplet array based off the scaled noise value

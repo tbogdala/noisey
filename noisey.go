@@ -25,3 +25,16 @@ Here's a quick fragment of how to use the 2D perlin noise generator:
 
 */
 package noisey
+
+// RandomSource is a generic interface for a random number generator
+// allowing the user to use the built-in RNG or a custom one that implements
+// this interface.
+type RandomSource interface {
+  Float64() float64
+  Perm(int) []int
+}
+
+// Vec2f is a simple 2D vector of 64 bit floats
+type Vec2f struct {
+  X, Y float64
+}
