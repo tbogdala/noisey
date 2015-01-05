@@ -9,7 +9,7 @@ import "math"
 
 // BuilderSource2D is an interface defining how the Builder* types get noise.
 type BuilderSource2D interface {
-	Get(float64, float64) float64
+	Get2D(float64, float64) float64
 }
 
 // Builder2DBounds is a simple rectangle type.
@@ -49,7 +49,7 @@ func (b *Builder2D) Build() {
 	for y := 0; y < b.Height; y++ {
 		xCur = b.Bounds.MinX
 		for x := 0; x < b.Width; x++ {
-			value := b.Source.Get(xCur, yCur)
+			value := b.Source.Get2D(xCur, yCur)
 			b.Values[(y*b.Width)+x] = value
 			xCur += xDelta
 		}
@@ -62,8 +62,8 @@ func (b *Builder2D) GetMinMax() (min float64, max float64) {
 	var low float64 = math.MaxFloat64
 	var high float64 = math.SmallestNonzeroFloat64
 
-	totalIndex := b.Width*b.Height
-	for i:=0; i<totalIndex; i++ {
+	totalIndex := b.Width * b.Height
+	for i := 0; i < totalIndex; i++ {
 		v := b.Values[i]
 		if v < low {
 			low = v

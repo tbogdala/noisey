@@ -20,15 +20,17 @@ func main() {
 	// make a test generator seeded to 1
 	r := rand.New(rand.NewSource(int64(1)))
 
-	// create a new perlin noise generator with a 'standard' 256 int
-	// table of random permutations
+	// create a new perlin noise generator with 'standard' quality
 	perlin := noisey.NewPerlinGenerator2D(r, noisey.StandardQuality)
+
+	// create the fractal Brownian motion generator based on perlin
+	fbmPerlin := noisey.NewFBMGenerator2D(&perlin)
 
 	// make an ascii pixel image by calculating random noise
 	pixels := make([]float64, imageSize*imageSize)
 	for y := 0; y < imageSize; y++ {
 		for x := 0; x < imageSize; x++ {
-			v := perlin.Get(float64(x)*0.1, float64(y)*0.1)
+			v := fbmPerlin.Get2D(float64(x)*0.1, float64(y)*0.1)
 			v = v*0.5 + 0.5
 			pixels[y*imageSize+x] = v
 		}

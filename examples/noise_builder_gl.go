@@ -246,18 +246,22 @@ func createTextureFromRGB(rgb []byte, imageSize int) gl.Texture {
 }
 
 func generateNoiseImage(imageSize int, r noisey.RandomSource) []byte {
-	// create a new perlin noise generator with a 'standard' 256 int
-	// table of random permutations and using HighQuality noise smoothing
-	perlin := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
-	perlin.Octaves = 5
-	perlin.Persistence = 0.25
-	perlin.Lacunarity = 2.0
-	perlin.Frequency = 1.13
+	// create a new perlin noise generator with HighQuality noise smoothing
+	noiseGen := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
+
+	// other generators can be used as well ..
+	// noiseGen := noisey.NewOpenSimplexGenerator2D(r)
+
+	// create the fractal Brownian motion generator based on perlin
+	fbmPerlin := noisey.NewFBMGenerator2D(&noiseGen)
+	fbmPerlin.Octaves = 5
+	fbmPerlin.Persistence = 0.25
+	fbmPerlin.Lacunarity = 2.0
+	fbmPerlin.Frequency = 1.13
 
 	// make an pixel image by calculating random noise and creating
 	// an RGB byte triplet array based off the scaled noise value
-	var bs noisey.BuilderSource2D = &perlin
-	builder := noisey.NewBuilder2D(bs, imageSize, imageSize)
+	builder := noisey.NewBuilder2D(&fbmPerlin, imageSize, imageSize)
 	builder.Bounds = noisey.Builder2DBounds{0.0, 0.0, 6.0, 6.0}
 	builder.Build()
 

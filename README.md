@@ -5,8 +5,14 @@ This library natively implements coherent noise algorithms in Go. No 3rd party l
 
 Currently it supports the following:
 
+### Generators
+
 * 2D (64-bit) [Perlin noise][link1]
 * 2D (64-bit) [OpenSimplex noise][link3]
+
+### Aggregators
+
+* fBm 2D (fractal Brownian Motion)
 
 **IMPORTANT: This is a new library and API stability is not guaranteed.**
 
@@ -44,10 +50,11 @@ r := rand.New(rand.NewSource(int64(1)))
 perlin := noisey.NewPerlinGenerator2D(r, noisey.StandardQuality)
 
 // get the noise value at point (0.4, 0.2)
-v := perlin.Get(0.4, 0.2)
+v := perlin.GetValue2D(0.4, 0.2)
 ```
 
-Another, more complicated example:
+If you want "smooth" noise, or fractal Brownian motion, then you use
+the noise generator with another structure:
 
 ```go
 import "github.com/tbogdala/noisey"
@@ -57,15 +64,18 @@ import "github.com/tbogdala/noisey"
 // create a new RNG from Go's built in library with a seed of '1'
 r := rand.New(rand.NewSource(int64(1)))
 
-// create a new perlin noise generator using the RNG created above
-perlin := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
-perlin.Octaves = 5
-perlin.Persistence = 0.5
-perlin.Lacunarity = 2.0
-perlin.Frequency = 1.0
+// create a new Perlin noise generator using the RNG created above
+noiseGen := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
+
+// create the fractal Brownian motion generator based on Perlin
+fbmPerlin := noisey.NewFBMGenerator2D(&noiseGen)
+fbmPerlin.Octaves = 5
+fbmPerlin.Persistence = 0.25
+fbmPerlin.Lacunarity = 2.0
+fbmPerlin.Frequency = 1.13
 
 // get the noise value at point (0.4, 0.2)
-v := perlin.Get(0.4, 0.2)
+v := fbmPerlin.Get2D(0.4, 0.2)
 ```
 
 Samples that display noise to console or OpenGL windows are included. If the
