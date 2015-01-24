@@ -93,6 +93,18 @@ r := rand.New(rand.NewSource(int64(1)))
 opensimplex := noisey.NewOpenSimplexGenerator2D(r)
 ```
 
+Benchmarks
+----------
+
+Benchmarks can be run with Go's built-in test tool by executing the following:
+
+```bash
+cd $GOPATH/src/github.com/tbogdala/noisey
+go test -cpu 4 -bench .
+```
+
+The cpu flag can be adjusted accordingly, but shouldn't make a difference since
+the generators don't improve in parallel operation.
 
 To Do
 -----
