@@ -5,14 +5,16 @@ This library natively implements coherent noise algorithms in Go. No 3rd party l
 
 Currently it supports the following:
 
-### Generators
+### Sources
 
 * 2D (64-bit) [Perlin noise][link1]
 * 2D (64-bit) [OpenSimplex noise][link3]
 
-### Aggregators
+### Modifiers
 
-* fBm 2D (fractal Brownian Motion)
+* fBm 2D - fractal Brownian Motion
+* select 2d - choose from source A or B depending on control source
+* scale 2d - modify output by multiplying by a scale and adding a bias constant
 
 **IMPORTANT: This is a new library and API stability is not guaranteed.**
 
@@ -67,7 +69,7 @@ r := rand.New(rand.NewSource(int64(1)))
 // create a new Perlin noise generator using the RNG created above
 noiseGen := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
 
-// create the fractal Brownian motion generator based on Perlin
+// create the fractal Brownian motion modifier based on Perlin
 fbmPerlin := noisey.NewFBMGenerator2D(&noiseGen)
 fbmPerlin.Octaves = 5
 fbmPerlin.Persistence = 0.25
