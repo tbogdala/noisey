@@ -50,7 +50,7 @@
 			"Generators": [
 				"flatterSource"
 			],
-			"Scale": 0.10,
+			"Scale": 0.40,
 			"Bias": 0.10
 		},
 		"basic": {

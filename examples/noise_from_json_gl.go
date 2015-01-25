@@ -25,6 +25,7 @@ Basic build instructions are:
 
 Hit `esc` to quit the program.
 Hit `r` to reload the JSON file and compute the noise again!
+Hit `c` to toggle the colorize effect.
 
 */
 
@@ -44,6 +45,7 @@ var (
 	configFilename                   = "noise.json"
 	noiseBank      *noisey.NoiseJSON = nil
 	noiseTex       gl.Texture
+	colorizeEnabled bool = true
 
 	// vertex shader
 	unlitTextureVertShader = `#version 330
@@ -197,6 +199,16 @@ func keyCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action,
 		randomPixels := generateNoiseImage(512)
 		bufferTextureFromRGB(randomPixels, noiseTex, 512)
 	}
+	if key == glfw.KeyC && action == glfw.Press {
+		colorizeEnabled = !colorizeEnabled
+		if colorizeEnabled {
+			fmt.Println("Colorizing the noise according to a gradient ...")
+		} else {
+			fmt.Println("Displaying noise as a grayscale image ...")
+		}
+		randomPixels := generateNoiseImage(512)
+		bufferTextureFromRGB(randomPixels, noiseTex, 512)
+	}
 }
 
 // loads shader objects and then attaches them to a program
@@ -278,38 +290,45 @@ func generateNoiseImage(imageSize int) []byte {
 			v := builder.Values[(y*builder.Width)+x]
 			b := byte(math.Floor((v*0.5 + 0.5) * 255)) // normalize 0..1 then scale by 255
 			colorIndex := y*imageSize*3 + x*3
-			if b > 250 { // snow
-				colors[colorIndex] = 255
-				colors[colorIndex+1] = 255
-				colors[colorIndex+2] = 255
-			} else if b > 190 { // rock
-				colors[colorIndex] = 128
-				colors[colorIndex+1] = 128
-				colors[colorIndex+2] = 128
-			} else if b > 160 { // dirt
-				colors[colorIndex] = 224
-				colors[colorIndex+1] = 224
-				colors[colorIndex+2] = 0
-			} else if b > 130 { // grass
-				colors[colorIndex] = 32
-				colors[colorIndex+1] = 160
-				colors[colorIndex+2] = 0
-			} else if b > 125 { // sand
-				colors[colorIndex] = 240
-				colors[colorIndex+1] = 240
-				colors[colorIndex+2] = 64
-			} else if b > 120 { // shore
-				colors[colorIndex] = 0
-				colors[colorIndex+1] = 128
-				colors[colorIndex+2] = 255
-			} else if b > 32 { // shallow
-				colors[colorIndex] = 0
-				colors[colorIndex+1] = 0
-				colors[colorIndex+2] = 255
-			} else { // deeps
-				colors[colorIndex] = 0
-				colors[colorIndex+1] = 0
-				colors[colorIndex+2] = 128
+
+			if colorizeEnabled {
+				if b > 250 { // snow
+					colors[colorIndex] = 255
+					colors[colorIndex+1] = 255
+					colors[colorIndex+2] = 255
+				} else if b > 190 { // rock
+					colors[colorIndex] = 128
+					colors[colorIndex+1] = 128
+					colors[colorIndex+2] = 128
+				} else if b > 160 { // dirt
+					colors[colorIndex] = 224
+					colors[colorIndex+1] = 224
+					colors[colorIndex+2] = 0
+				} else if b > 130 { // grass
+					colors[colorIndex] = 32
+					colors[colorIndex+1] = 160
+					colors[colorIndex+2] = 0
+				} else if b > 125 { // sand
+					colors[colorIndex] = 240
+					colors[colorIndex+1] = 240
+					colors[colorIndex+2] = 64
+				} else if b > 120 { // shore
+					colors[colorIndex] = 0
+					colors[colorIndex+1] = 128
+					colors[colorIndex+2] = 255
+				} else if b > 32 { // shallow
+					colors[colorIndex] = 0
+					colors[colorIndex+1] = 0
+					colors[colorIndex+2] = 255
+				} else { // deeps
+					colors[colorIndex] = 0
+					colors[colorIndex+1] = 0
+					colors[colorIndex+2] = 128
+				}
+			} else {
+				colors[colorIndex] = b
+				colors[colorIndex+1] = b
+				colors[colorIndex+2] = b
 			}
 		}
 	}
