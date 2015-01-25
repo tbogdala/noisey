@@ -44,9 +44,9 @@
 				"perlin2d"
 			],
 			"Octaves": 2,
-			"Persistence": 0.25,
-			"Lacunarity": 1.8,
-			"Frequency": 1.1
+			"Persistence": 0.5,
+			"Lacunarity": 2.0,
+			"Frequency": 1.0
 		},
 		{
 			"Name": "flatter",
@@ -64,7 +64,8 @@
 				"hifreq", "flatter", "landcontrol"
 			],
 			"LowerBound": 0.0,
-			"UpperBound": 100.0
+			"UpperBound": 100.0,
+			"EdgeFalloff": 0.2
 		}
 	]
 }

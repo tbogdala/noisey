@@ -91,23 +91,6 @@ func getPointGradient2D(origin, gradient, point Vec2f) float64 {
 	return gradient.X*s.X + gradient.Y*s.Y
 }
 
-// standard quality smoothing with range from 0.0 to 1.0
-func calcCubicSCurve(v float64) float64 {
-	return v * v * (3 - 2*v)
-}
-
-// highest quality smoothing with range from 0.0 to 1.0
-func calcQuinticSCurve(v float64) float64 {
-	v3 := v * v * v
-	v4 := v3 * v
-	v5 := v4 * v
-	return (6.0 * v5) - (15.0 * v4) + (10.0 * v3)
-}
-
-func lerp(a, b, v float64) float64 {
-	return a*(1-v) + b*v
-}
-
 // GetValue2D calculates the perlin noise at a given 2D coordinate
 func (pg *PerlinGenerator2D) GetValue2D(x float64, y float64) float64 {
 	pg.calcGradientsAndOrigins(x, y)

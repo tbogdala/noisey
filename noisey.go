@@ -37,3 +37,18 @@ type SourceGet2D interface {
 type Vec2f struct {
 	X, Y float64
 }
+
+func calcCubicSCurve(v float64) float64 {
+	return v * v * (3 - 2*v)
+}
+
+func calcQuinticSCurve(v float64) float64 {
+	v3 := v * v * v
+	v4 := v3 * v
+	v5 := v4 * v
+	return (6.0 * v5) - (15.0 * v4) + (10.0 * v3)
+}
+
+func lerp(a, b, v float64) float64 {
+	return a*(1-v) + b*v
+}
