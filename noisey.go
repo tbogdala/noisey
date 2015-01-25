@@ -22,6 +22,17 @@ type RandomSource interface {
 	Perm(int) []int
 }
 
+// BuilderSource2D is an interface defining how the Builder* types get noise.
+type BuilderSource2D interface {
+	Get2D(float64, float64) float64
+}
+
+// CoherentRandomGen2D is a generic interface for a noise generator
+// that makes coherent random noise.
+type CoherentRandomGen2D interface {
+	GetValue2D(float64, float64) float64
+}
+
 // Vec2f is a simple 2D vector of 64 bit floats
 type Vec2f struct {
 	X, Y float64

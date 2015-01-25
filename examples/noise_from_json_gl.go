@@ -8,7 +8,7 @@ package main
 This is a test module that does the following:
 
 1) Creates an OpenGL window
-2) Creates an RGB texture from perlin noise
+2) Creates an RGB texture from noise described in a JSON config file
 3) Displays the noise as a texture on a plane in the window
 
 It requires the GLFW3 and GLEW libraries as well as the Go wrappers
@@ -20,10 +20,11 @@ Basic build instructions are:
 	go get github.com/go-gl/glfw3
 	go get github.com/tbogdala/noisey
 	cd $GOHOME/src/github.com/tbogdala/noisey/examples
-	go build noise_builder_gl.go
-	./noise_builder_gl
+	go build noise_from_json_gl.go
+	./noise_from_json_gl
 
 Hit `esc` to quit the program.
+Hit `r` to reload the JSON file and compute the noise again!
 
 */
 
@@ -36,9 +37,14 @@ import (
 	"math"
 	"math/rand"
 	"unsafe"
+	"io/ioutil"
 )
 
 var (
+	configFilename = "noise.json"
+	noiseBank *noisey.NoiseJSON = nil
+	noiseTex gl.Texture
+
 	// vertex shader
 	unlitTextureVertShader = `#version 330
   in vec3 position;
@@ -185,6 +191,12 @@ func keyCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action,
 	if key == glfw.KeyEscape && action == glfw.Press {
 		w.SetShouldClose(true)
 	}
+	if key == glfw.KeyR && action == glfw.Press {
+		fmt.Println("Reloading noise bank from JSON file...")
+		loadJSONFile()
+		randomPixels := generateNoiseImage(512)
+		bufferTextureFromRGB(randomPixels, noiseTex, 512)
+	}
 }
 
 // loads shader objects and then attaches them to a program
@@ -241,27 +253,22 @@ func createTextureFromRGB(rgb []byte, imageSize int) gl.Texture {
 	tex.Bind(gl.TEXTURE_2D)
 	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, imageSize, imageSize, 0, gl.RGB, gl.UNSIGNED_BYTE, rgb)
+	bufferTextureFromRGB(rgb, tex, imageSize)
 	return tex
 }
 
-func generateNoiseImage(imageSize int, r noisey.RandomSource) []byte {
-	// create a new perlin noise generator with HighQuality noise smoothing
-	noiseGen := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
+func bufferTextureFromRGB(rgb []byte, tex gl.Texture, imageSize int) {
+	tex.Bind(gl.TEXTURE_2D)
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, imageSize, imageSize, 0, gl.RGB, gl.UNSIGNED_BYTE, rgb)
+}
 
-	// other generators can be used as well ..
-	// noiseGen := noisey.NewOpenSimplexGenerator2D(r)
-
+func generateNoiseImage(imageSize int) []byte {
 	// create the fractal Brownian motion generator based on perlin
-	fbmPerlin := noisey.NewFBMGenerator2D(&noiseGen)
-	fbmPerlin.Octaves = 5
-	fbmPerlin.Persistence = 0.25
-	fbmPerlin.Lacunarity = 2.0
-	fbmPerlin.Frequency = 1.13
+	fbmPerlin := noiseBank.GetGenerator("basic")
 
 	// make an pixel image by calculating random noise and creating
 	// an RGB byte triplet array based off the scaled noise value
-	builder := noisey.NewBuilder2D(&fbmPerlin, imageSize, imageSize)
+	builder := noisey.NewBuilder2D(fbmPerlin, imageSize, imageSize)
 	builder.Bounds = noisey.Builder2DBounds{0.0, 0.0, 6.0, 6.0}
 	builder.Build()
 
@@ -310,6 +317,34 @@ func generateNoiseImage(imageSize int, r noisey.RandomSource) []byte {
 	return colors
 }
 
+func loadJSONFile() {
+	// load the actual JSON configuration file
+	fmt.Printf("Loading JSON configuration file bytes...\n")
+	bytes, err := ioutil.ReadFile(configFilename)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Parsing the JSON ...\n")
+	noiseBank, err = noisey.LoadNoiseJSON(bytes)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Parsing complete!\n")
+
+	// build the sources from the JSON file
+	err = noiseBank.BuildSources(func(s int64) noisey.RandomSource {
+		return rand.New(rand.NewSource(int64(s)))
+		})
+	if err != nil {
+		panic(err)
+	}
+	err = noiseBank.BuildGenerators()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	// make sure that we display any errors that are encountered
 	glfw.SetErrorCallback(errorCallback)
@@ -347,13 +382,15 @@ func main() {
 	}
 	prog.Use()
 
+	// load the JSON configuration file
+	loadJSONFile()
+
 	// create the plane to draw as a test
 	plane := createPlane2dXY(prog, -0.75, -0.75, 0.75, 0.75)
 
 	// generate the noise and make a image
-	r := rand.New(rand.NewSource(int64(1)))
-	randomPixels := generateNoiseImage(512, r)
-	noiseTex := createTextureFromRGB(randomPixels, 512)
+	randomPixels := generateNoiseImage(512)
+	noiseTex = createTextureFromRGB(randomPixels, 512)
 	plane.Material.Tex0 = noiseTex
 
 	// while there's no request to close the window

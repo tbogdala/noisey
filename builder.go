@@ -7,10 +7,7 @@ See the LICENSE file for more details. */
 
 import "math"
 
-// BuilderSource2D is an interface defining how the Builder* types get noise.
-type BuilderSource2D interface {
-	Get2D(float64, float64) float64
-}
+
 
 // Builder2DBounds is a simple rectangle type.
 type Builder2DBounds struct {

@@ -14,11 +14,7 @@ Reference material:
 
 */
 
-// CoherentRandomGen2D is a generic interface for a noise generator
-// that makes coherent random noise.
-type CoherentRandomGen2D interface {
-	GetValue2D(float64, float64) float64
-}
+
 
 // FBMGenerator2D takes noise and makes fractal Brownian motion values.
 type FBMGenerator2D struct {

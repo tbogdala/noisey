@@ -21,7 +21,7 @@ Basic build instructions are:
 	go get github.com/tbogdala/noisey
 	cd $GOHOME/src/github.com/tbogdala/noisey/examples
 	go build noise_gl.go
-	./noise_gl.go
+	./noise_gl
 
 Hit `esc` to quit the program.
 
