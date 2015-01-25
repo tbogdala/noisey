@@ -7,8 +7,6 @@ See the LICENSE file for more details. */
 
 import "math"
 
-
-
 // Builder2DBounds is a simple rectangle type.
 type Builder2DBounds struct {
 	MinX, MinY, MaxX, MaxY float64
@@ -16,7 +14,7 @@ type Builder2DBounds struct {
 
 // Builder2D contains the parameters and data for the noise 'map' generated with Build().
 type Builder2D struct {
-	Source BuilderSource2D
+	Source BuilderGet2D
 	Width  int
 	Height int
 	Bounds Builder2DBounds
@@ -24,7 +22,7 @@ type Builder2D struct {
 }
 
 // NewBuilder2D creates a new 2D noise 'map' builder of the given size
-func NewBuilder2D(s BuilderSource2D, width int, height int) (b Builder2D) {
+func NewBuilder2D(s BuilderGet2D, width int, height int) (b Builder2D) {
 	b.Source = s
 	b.Width = width
 	b.Height = height

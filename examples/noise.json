@@ -15,8 +15,8 @@
 			"Sources": [
 				"perlin"
 			],
-			"Octaves": 2,
-			"Persistence": 0.35,
+			"Octaves": 5,
+			"Persistence": 0.25,
 			"Lacunarity": 2,
 			"Frequency": 1.13
 		}

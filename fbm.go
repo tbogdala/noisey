@@ -14,19 +14,17 @@ Reference material:
 
 */
 
-
-
 // FBMGenerator2D takes noise and makes fractal Brownian motion values.
 type FBMGenerator2D struct {
-	NoiseMaker  CoherentRandomGen2D
-	Octaves     int     // the number of octaves to calculate on each Get()
-	Persistence float64 // a multiplier that determines how quickly the amplitudes diminish for each successive octave
-	Lacunarity  float64 // a multiplier that determines how quickly the frequency increases for each successive octave
-	Frequency   float64 // the number of cycles per unit length
+	NoiseMaker  SourceGet2D // the interface FBMGenerator2D uses gets noise values
+	Octaves     int         // the number of octaves to calculate on each Get()
+	Persistence float64     // a multiplier that determines how quickly the amplitudes diminish for each successive octave
+	Lacunarity  float64     // a multiplier that determines how quickly the frequency increases for each successive octave
+	Frequency   float64     // the number of cycles per unit length
 }
 
 // NewFBMGenerator2D creates a new fractal Brownian motion generator state.
-func NewFBMGenerator2D(noise CoherentRandomGen2D) (fbm FBMGenerator2D) {
+func NewFBMGenerator2D(noise SourceGet2D) (fbm FBMGenerator2D) {
 	fbm.NoiseMaker = noise
 	fbm.Octaves = 1
 	fbm.Persistence = 0.5

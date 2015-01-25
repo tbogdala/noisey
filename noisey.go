@@ -22,14 +22,14 @@ type RandomSource interface {
 	Perm(int) []int
 }
 
-// BuilderSource2D is an interface defining how the Builder* types get noise.
-type BuilderSource2D interface {
+// BuilderGet2D is an interface defining how the Builder* types get noise.
+type BuilderGet2D interface {
 	Get2D(float64, float64) float64
 }
 
-// CoherentRandomGen2D is a generic interface for a noise generator
+// SourceGet2D is a generic interface for a noise generator
 // that makes coherent random noise.
-type CoherentRandomGen2D interface {
+type SourceGet2D interface {
 	GetValue2D(float64, float64) float64
 }
 

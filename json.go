@@ -3,151 +3,279 @@ package noisey
 /* Copyright 2015, Timothy Bogdala <tdb@animal-machine.com>
 See the LICENSE file for more details. */
 
+/*
+
+This module provides a way to save/load noise setting to/from a JSON file,
+as well as providing creation methods to create objects for all of the seeds, coherent
+random value sources and builder/selectors.
+
+A sample JSON file would contain something like this:
+
+{
+  "Seeds": {
+    "Default": 1
+  },
+  "Sources": {
+    "perlin": {
+      "SourceType": "perlin2d",
+      "Quality": 2,
+      "Seed": "Default"
+    }
+  },
+  "Generators": {
+    "basic": {
+      "GeneratorType": "fBm2d",
+      "Sources": [
+        "perlin"
+      ],
+      "Octaves": 5,
+      "Persistence": 0.25,
+      "Lacunarity": 2,
+      "Frequency": 1.13
+    }
+  }
+}
+
+
+A quick sample of what this looks like is here:
+
+  import (
+    "bytes"
+    "io/ioutil"
+  )
+
+  bytes, err := ioutil.ReadFile(configFilename)
+  if err != nil {
+    panic(err)
+  }
+
+  noiseBank, err := noisey.LoadNoiseJSON(bytes)
+  if err != nil {
+    panic(err)
+  }
+
+  err = noiseBank.BuildSources(func(s int64) noisey.RandomSource {
+    return rand.New(rand.NewSource(int64(s)))
+    })
+  if err != nil {
+    panic(err)
+  }
+
+  err = noiseBank.BuildGenerators()
+  if err != nil {
+    panic(err)
+  }
+
+This loads the JSON file into the structures in this module and then calls
+BuildSources() and BuildGenerators() so that the seeds, sources and generator
+modules are all created.
+
+At this point you can get the generator from the noiseBank variable and
+use it to get random numbers or put it inside a builder module to make
+something else:
+
+  fbmPerlin := noiseBank.GetGenerator("basic")
+  builder := noisey.NewBuilder2D(fbmPerlin, imageSize, imageSize)
+  builder.Bounds = noisey.Builder2DBounds{0.0, 0.0, 6.0, 6.0}
+  builder.Build()
+
+
+*/
+
 import (
-  "bytes"
-  "encoding/json"
-  "fmt"
+	"bytes"
+	"encoding/json"
+	"fmt"
 )
 
-type RandomSeedBuilder func(s int64)RandomSource
+// RandomSeedBuilder is a type used to construct RandomSource interfaces
+// from a seed listed in the configuration JSON
+type RandomSeedBuilder func(s int64) RandomSource
 
+// GeneratorJSON is a generic data structure for noise generators in
+// noisey. Something like a C union, not all of the fields may be applicable
+// to every generator type.
 type GeneratorJSON struct {
-  GeneratorType string
-  Sources []string
-  Octaves int
-  Persistence float64
-  Lacunarity float64
-  Frequency float64
+	// GeneratorType is a type string to identify what generator to create
+	// on BuildGenerators()
+	GeneratorType string
+
+	// Sources is an array of strings that are names in the NoiseJSON.Sources
+	// map that are to be used in this generator.
+	Sources []string
+
+	Octaves     int     // Octaves is generator specific ...
+	Persistence float64 // Persistence is generator specific ...
+	Lacunarity  float64 // Lacunarity is generator specific ...
+	Frequency   float64 // Frequency is generator specific ...
 }
 
-// SourceJSON describes the source of the random information. The key string
-// used to define this in JSON will be the module type
+// SourceJSON describes the source of the random information, like perlin2d.
 type SourceJSON struct {
-  SourceType string
-  Quality int
-  Seed string
+	// SourceType is a type string used to identify what source module to create
+	// on BuildSources().
+	SourceType string
+
+	// Quality is source module specific ...
+	Quality int
+
+	// Seed is a string that needs to be a name in the NoiseJSON.Seeds map that
+	// is to be used in this generator.
+	Seed string
 }
 
+// NoiseJSON is a structure that facilities the saving and loading of JSON
+// representations of a system of seeds, sources and generators of noise.
 type NoiseJSON struct {
-  Seeds map[string]int64
-  Sources map[string]SourceJSON
-  Generators map[string]GeneratorJSON
+	// Seeds uses a name string as a key that can be referenced in SourceJSON
+	// structures and can have predefined seed values. When calling BuildSources(),
+	// a client may pass a function to build the actual RandomSource interface
+	// and is therefore not bound to use this ...
+	Seeds map[string]int64
 
-  builtSeeds map[string]RandomSource
-  builtSources map[string]CoherentRandomGen2D
-  builtGenerators map[string]BuilderSource2D
+	// Sources uses a name string as a key that can be referenced in other structures
+	// and maps to a SoruceJSON structure that describes how the noise source
+	// should be built.
+	Sources map[string]SourceJSON
+
+	// Generators uses a name string as a key that can be referenced in other
+	// structures and maps to a GeneratorJSON structre that describes how the noise
+	// generator should be built.
+	Generators map[string]GeneratorJSON
+
+	// builtSeeds are cached RandomSource random number sources built after BuildSources()
+	builtSeeds map[string]RandomSource
+
+	// builtSources are cached noise providers built after BuildSources()
+	builtSources map[string]SourceGet2D
+
+	// builtGenerators are cached noise generators built after BuildGenerators()
+	builtGenerators map[string]BuilderGet2D
 }
 
+// NewNoiseJSON creates a new structure that can be used to save noise settings
+// out to JSON or to load noise settings in from a JSON byte array.
 func NewNoiseJSON() *NoiseJSON {
-  nj := new(NoiseJSON)
-  nj.Seeds = make(map[string]int64)
-  nj.Sources = make(map[string]SourceJSON)
-  nj.Generators = make(map[string]GeneratorJSON)
+	nj := new(NoiseJSON)
+	nj.Seeds = make(map[string]int64)
+	nj.Sources = make(map[string]SourceJSON)
+	nj.Generators = make(map[string]GeneratorJSON)
 
-  nj.builtSeeds = make(map[string]RandomSource)
-  nj.builtSources = make(map[string]CoherentRandomGen2D)
-  nj.builtGenerators = make(map[string]BuilderSource2D)
+	nj.builtSeeds = make(map[string]RandomSource)
+	nj.builtSources = make(map[string]SourceGet2D)
+	nj.builtGenerators = make(map[string]BuilderGet2D)
 
-  return nj
+	return nj
 }
 
+// LoadNoiseJSON unmarshals the JSON from the byte array and returns a NoiseJSON
+// object on success; error otherwise.
 func LoadNoiseJSON(bytes []byte) (*NoiseJSON, error) {
-  var cfg *NoiseJSON = NewNoiseJSON()
-  err := json.Unmarshal(bytes, cfg)
-  if err != nil {
-    return nil, fmt.Errorf("Unable to read json into the configuration structure.\n%v\n", err)
-  }
+	var cfg *NoiseJSON = NewNoiseJSON()
+	err := json.Unmarshal(bytes, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to read json into the configuration structure.\n%v\n", err)
+	}
 
-  return cfg, nil
+	return cfg, nil
 }
 
-
-func (cfg *NoiseJSON) GetGenerator(name string) BuilderSource2D {
-  s, ok := cfg.builtGenerators[name]
-  if ok == false {
-    return nil
-  }
-  return s
+// GetGenerator returns a cached generator BuilderGet2D object. This function
+// Must be called after both BuildSources() and BuildGenerators().
+func (cfg *NoiseJSON) GetGenerator(name string) BuilderGet2D {
+	s, ok := cfg.builtGenerators[name]
+	if ok == false {
+		return nil
+	}
+	return s
 }
 
+// SaveNoiseJSON marshals the structure into a JSON byte array that is indented nicely.
 func (cfg *NoiseJSON) SaveNoiseJSON() ([]byte, error) {
-  rawBytes, err := json.Marshal(cfg)
-  if err != nil {
-    return nil, fmt.Errorf("Unable to encode the configuration structure into JSON.\n%v\n", err)
-  }
+	rawBytes, err := json.Marshal(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to encode the configuration structure into JSON.\n%v\n", err)
+	}
 
-  // format them nicely
-  var b bytes.Buffer
-  json.Indent(&b, rawBytes, "", "\t")
+	// format them nicely
+	var b bytes.Buffer
+	json.Indent(&b, rawBytes, "", "\t")
 
-  return b.Bytes(), nil
+	return b.Bytes(), nil
 }
 
+// BuildSources takes a RandomSeedbuilder function as a parameter to create
+// the actual random number generators from the seed provided and then
+// creates the SourceGet2D interface objects based off of settings from
+// SourceJSON structures in NoiseJSON.Sources. This method should be
+// called before BuildGenerators().
 func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
-  // loop through all configured sources
-  for sourceName,source := range cfg.Sources {
-    // try to get the same seede if it's already built
-    r, ok := cfg.builtSeeds[source.Seed]
-    if ok != true {
-      seed, ok := cfg.Seeds[source.Seed]
-      if ok != true {
-        seed = 1
-      }
+	// loop through all configured sources
+	for sourceName, source := range cfg.Sources {
+		// try to get the same seede if it's already built
+		r, ok := cfg.builtSeeds[source.Seed]
+		if ok != true {
+			seed, ok := cfg.Seeds[source.Seed]
+			if ok != true {
+				seed = 1
+			}
 
-      // get the random source by taking the referenced seed and calling
-      // the seedBuilder() function with it that was passed in.
-      r = seedBuilder(seed)
+			// get the random source by taking the referenced seed and calling
+			// the seedBuilder() function with it that was passed in.
+			r = seedBuilder(seed)
 
-      // store the result for future generators to share
-      cfg.builtSeeds[source.Seed] = r
-    }
+			// store the result for future generators to share
+			cfg.builtSeeds[source.Seed] = r
+		}
 
-    var s CoherentRandomGen2D
-    switch source.SourceType {
-      case "perlin2d":
-        p2d := NewPerlinGenerator2D(r, source.Quality)
-        s = CoherentRandomGen2D(&p2d)
-      default:
-        return fmt.Errorf("Undefined source type (%s) for source %s.\n", source.SourceType, sourceName)
-    }
+		var s SourceGet2D
+		switch source.SourceType {
+		case "perlin2d":
+			p2d := NewPerlinGenerator2D(r, source.Quality)
+			s = SourceGet2D(&p2d)
+		default:
+			return fmt.Errorf("Undefined source type (%s) for source %s.\n", source.SourceType, sourceName)
+		}
 
-    // store the result
-    cfg.builtSources[sourceName] = s
-  }
+		// store the result
+		cfg.builtSources[sourceName] = s
+	}
 
-  return nil
+	return nil
 }
 
-
+// BuildGenerators creates BuilderGet2D interface objects based off of the settings
+// in the GeneratorJSON objects in NoiseJSON.Gnerators. This method should be
+// called after BuildSources().
 func (cfg *NoiseJSON) BuildGenerators() error {
-  // loop through all configured generators
-  for genName,gen := range cfg.Generators {
-    // build the array of sources and if one's not found, error out
-    sourceArray := make([]CoherentRandomGen2D, len(gen.Sources))
-    for i,ss := range gen.Sources {
-      builtSource, ok := cfg.builtSources[ss]
-      if ok != true {
-        return fmt.Errorf("Generator %s creation failed: couldn't find built source %s.\n", genName, ss)
-      }
-      sourceArray[i] = builtSource
-    }
+	// loop through all configured generators
+	for genName, gen := range cfg.Generators {
+		// build the array of sources and if one's not found, error out
+		sourceArray := make([]SourceGet2D, len(gen.Sources))
+		for i, ss := range gen.Sources {
+			builtSource, ok := cfg.builtSources[ss]
+			if ok != true {
+				return fmt.Errorf("Generator %s creation failed: couldn't find built source %s.\n", genName, ss)
+			}
+			sourceArray[i] = builtSource
+		}
 
-    var g BuilderSource2D
-    switch gen.GeneratorType {
-      case "fBm2d":
-        fbm := NewFBMGenerator2D(sourceArray[0])
-        fbm.Octaves = gen.Octaves
-        fbm.Persistence = gen.Persistence
-        fbm.Lacunarity = gen.Lacunarity
-        fbm.Frequency = gen.Frequency
-        g = BuilderSource2D(&fbm)
-      default:
-        return fmt.Errorf("Undefined generator type (%s) for generator %s.\n", gen.GeneratorType, genName)
-    }
+		var g BuilderGet2D
+		switch gen.GeneratorType {
+		case "fBm2d":
+			fbm := NewFBMGenerator2D(sourceArray[0])
+			fbm.Octaves = gen.Octaves
+			fbm.Persistence = gen.Persistence
+			fbm.Lacunarity = gen.Lacunarity
+			fbm.Frequency = gen.Frequency
+			g = BuilderGet2D(&fbm)
+		default:
+			return fmt.Errorf("Undefined generator type (%s) for generator %s.\n", gen.GeneratorType, genName)
+		}
 
-    // store the result
-    cfg.builtGenerators[genName] = g
-  }
+		// store the result
+		cfg.builtGenerators[genName] = g
+	}
 
-  return nil
+	return nil
 }

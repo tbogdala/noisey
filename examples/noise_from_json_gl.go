@@ -34,16 +34,16 @@ import (
 	gl "github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
 	"github.com/tbogdala/noisey"
+	"io/ioutil"
 	"math"
 	"math/rand"
 	"unsafe"
-	"io/ioutil"
 )
 
 var (
-	configFilename = "noise.json"
-	noiseBank *noisey.NoiseJSON = nil
-	noiseTex gl.Texture
+	configFilename                   = "noise.json"
+	noiseBank      *noisey.NoiseJSON = nil
+	noiseTex       gl.Texture
 
 	// vertex shader
 	unlitTextureVertShader = `#version 330
@@ -335,7 +335,7 @@ func loadJSONFile() {
 	// build the sources from the JSON file
 	err = noiseBank.BuildSources(func(s int64) noisey.RandomSource {
 		return rand.New(rand.NewSource(int64(s)))
-		})
+	})
 	if err != nil {
 		panic(err)
 	}

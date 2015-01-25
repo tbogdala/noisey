@@ -43,7 +43,7 @@ type PerlinGenerator2D struct {
 	calculatedOrigins   [4]Vec2f     // the last calculated origins table
 }
 
-// creates a random gradient used for initializing a 2D perlin state
+// makeRandomGradient2D creates a random gradient used for initializing a 2D perlin state
 func (pg *PerlinGenerator2D) makeRandomGradient2D() Vec2f {
 	v := pg.Rng.Float64() * math.Pi * 2
 	return Vec2f{math.Cos(v), math.Sin(v)}
