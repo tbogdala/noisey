@@ -86,8 +86,8 @@ func (osg *OpenSimplexGenerator2D) extrapolate2(xsb int, ysb int, dx float64, dy
 	return float64(gradients2D[index])*dx + float64(gradients2D[index+1])*dy
 }
 
-// GetValue2D calculates the noise at a given 2D coordinate
-func (osg *OpenSimplexGenerator2D) GetValue2D(x float64, y float64) float64 {
+// Get2D calculates the noise at a given 2D coordinate
+func (osg *OpenSimplexGenerator2D) Get2D(x float64, y float64) float64 {
 	// place input coordinates onto grid
 	stretchOffset := (x + y) * stretchConstant2D
 	xs := x + stretchOffset

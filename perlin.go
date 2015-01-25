@@ -91,8 +91,8 @@ func getPointGradient2D(origin, gradient, point Vec2f) float64 {
 	return gradient.X*s.X + gradient.Y*s.Y
 }
 
-// GetValue2D calculates the perlin noise at a given 2D coordinate
-func (pg *PerlinGenerator2D) GetValue2D(x float64, y float64) float64 {
+// Get2D calculates the perlin noise at a given 2D coordinate
+func (pg *PerlinGenerator2D) Get2D(x float64, y float64) float64 {
 	pg.calcGradientsAndOrigins(x, y)
 
 	p := Vec2f{x, y}

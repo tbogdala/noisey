@@ -30,8 +30,8 @@ A sample JSON file would contain something like this:
       ],
       "Octaves": 5,
       "Persistence": 0.25,
-      "Lacunarity": 2,
-      "Frequency": 1.13
+      "Lacunarity": 2.0,
+      "Frequency": 1.0
     }
   }
 }
@@ -157,10 +157,10 @@ type NoiseJSON struct {
 	Generators []GeneratorJSON
 
 	// builtSources are cached noise providers built after BuildSources()
-	builtSources map[string]SourceGet2D
+	builtSources map[string]NoiseyGet2D
 
 	// builtGenerators are cached noise generators built after BuildGenerators()
-	builtGenerators map[string]BuilderGet2D
+	builtGenerators map[string]NoiseyGet2D
 }
 
 // NewNoiseJSON creates a new structure that can be used to save noise settings
@@ -170,8 +170,8 @@ func NewNoiseJSON() *NoiseJSON {
 	nj.Seeds = make(map[string]int64)
 	nj.Sources = make(map[string]SourceJSON)
 
-	nj.builtSources = make(map[string]SourceGet2D)
-	nj.builtGenerators = make(map[string]BuilderGet2D)
+	nj.builtSources = make(map[string]NoiseyGet2D)
+	nj.builtGenerators = make(map[string]NoiseyGet2D)
 
 	return nj
 }
@@ -188,9 +188,9 @@ func LoadNoiseJSON(bytes []byte) (*NoiseJSON, error) {
 	return cfg, nil
 }
 
-// GetGenerator returns a cached generator BuilderGet2D object. This function
+// GetGenerator returns a cached generator NoiseyGet2D object. This function
 // Must be called after both BuildSources() and BuildGenerators().
-func (cfg *NoiseJSON) GetGenerator(name string) BuilderGet2D {
+func (cfg *NoiseJSON) GetGenerator(name string) NoiseyGet2D {
 	s, ok := cfg.builtGenerators[name]
 	if ok == false {
 		return nil
@@ -214,7 +214,7 @@ func (cfg *NoiseJSON) SaveNoiseJSON() ([]byte, error) {
 
 // BuildSources takes a RandomSeedbuilder function as a parameter to create
 // the actual random number generators from the seed provided and then
-// creates the SourceGet2D interface objects based off of settings from
+// creates the NoiseyGet2D interface objects based off of settings from
 // SourceJSON structures in NoiseJSON.Sources. This method should be
 // called before BuildGenerators().
 func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
@@ -236,14 +236,14 @@ func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
 			r = rand.New(rand.NewSource(int64(seed)))
 		}
 
-		var s SourceGet2D
+		var s NoiseyGet2D
 		switch source.SourceType {
 		case "perlin2d":
 			p2d := NewPerlinGenerator2D(r, source.Quality)
-			s = SourceGet2D(&p2d)
+			s = NoiseyGet2D(&p2d)
 		case "opensimplex2d":
 			os2d := NewOpenSimplexGenerator2D(r)
-			s = SourceGet2D(&os2d)
+			s = NoiseyGet2D(&os2d)
 		default:
 			return fmt.Errorf("Undefined source type (%s) for source %s.\n", source.SourceType, sourceName)
 		}
@@ -255,18 +255,18 @@ func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
 	return nil
 }
 
-// BuildGenerators creates BuilderGet2D interface objects based off of the settings
+// BuildGenerators creates NoiseyGet2D interface objects based off of the settings
 // in the GeneratorJSON objects in NoiseJSON.Gnerators. This method should be
 // called after BuildSources().
 func (cfg *NoiseJSON) BuildGenerators() error {
 	// loop through all configured generators
 	for _, gen := range cfg.Generators {
-		var sourceArray []SourceGet2D
-		var genArray []BuilderGet2D
+		var sourceArray []NoiseyGet2D
+		var genArray []NoiseyGet2D
 
 		// build the array of sources and if one's not found, then return an error
 		if gen.Sources != nil {
-			sourceArray = make([]SourceGet2D, len(gen.Sources))
+			sourceArray = make([]NoiseyGet2D, len(gen.Sources))
 			for i, ss := range gen.Sources {
 				builtSource, ok := cfg.builtSources[ss]
 				if ok != true {
@@ -278,7 +278,7 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 
 		// build the array of generators and if one's not found, then return an error
 		if gen.Generators != nil {
-			genArray = make([]BuilderGet2D, len(gen.Generators))
+			genArray = make([]NoiseyGet2D, len(gen.Generators))
 			for i, ss := range gen.Generators {
 				builtGen, ok := cfg.builtGenerators[ss]
 				if ok != true {
@@ -288,7 +288,7 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 			}
 		}
 
-		var g BuilderGet2D
+		var g NoiseyGet2D
 		switch gen.GeneratorType {
 		case "fBm2d":
 			fbm := NewFBMGenerator2D(sourceArray[0])
@@ -296,13 +296,13 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 			fbm.Persistence = gen.Persistence
 			fbm.Lacunarity = gen.Lacunarity
 			fbm.Frequency = gen.Frequency
-			g = BuilderGet2D(&fbm)
+			g = NoiseyGet2D(&fbm)
 		case "select2d":
 			sel := NewSelect2D(genArray[0], genArray[1], genArray[2], gen.LowerBound, gen.UpperBound, gen.EdgeFalloff)
-			g = BuilderGet2D(&sel)
+			g = NoiseyGet2D(&sel)
 		case "scale2d":
 			scale := NewScale2D(genArray[0], gen.Scale, gen.Bias)
-			g = BuilderGet2D(&scale)
+			g = NoiseyGet2D(&scale)
 		default:
 			return fmt.Errorf("Undefined generator type (%s) for generator %s.\n", gen.GeneratorType, gen.Name)
 		}

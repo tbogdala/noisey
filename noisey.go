@@ -22,15 +22,9 @@ type RandomSource interface {
 	Perm(int) []int
 }
 
-// BuilderGet2D is an interface defining how the Builder* types get noise.
-type BuilderGet2D interface {
+// NoiseyGet2D is an interface defining how the modules types get noise from a source.
+type NoiseyGet2D interface {
 	Get2D(float64, float64) float64
-}
-
-// SourceGet2D is a generic interface for a noise generator
-// that makes coherent random noise.
-type SourceGet2D interface {
-	GetValue2D(float64, float64) float64
 }
 
 // Vec2f is a simple 2D vector of 64 bit floats

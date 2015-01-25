@@ -9,14 +9,14 @@ See the LICENSE file for more details. */
 // use SourceA.
 type Select2D struct {
 	// the first channel of noise that the select module uses
-	SourceA BuilderGet2D
+	SourceA NoiseyGet2D
 
 	// the second channel of noise that the select module uses
-	SourceB BuilderGet2D
+	SourceB NoiseyGet2D
 
 	// a channel of noise that determines whether SourceA or SourceB gets
 	// used as an output for a given coordinate
-	Control BuilderGet2D
+	Control NoiseyGet2D
 
 	// if the value of Control is above LowerBound but below Upper Bound
 	// then SourceB is output, otherwise SourceA is output
@@ -34,7 +34,7 @@ type Select2D struct {
 }
 
 // NewSelect2D creates a new selector 2d module.
-func NewSelect2D(a, b, c BuilderGet2D, lower float64, upper float64, edge float64) (selector Select2D) {
+func NewSelect2D(a, b, c NoiseyGet2D, lower float64, upper float64, edge float64) (selector Select2D) {
 	selector.SourceA = a
 	selector.SourceB = b
 	selector.Control = c

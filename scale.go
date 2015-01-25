@@ -8,7 +8,7 @@ See the LICENSE file for more details. */
 // it and then adds a bias.
 type Scale2D struct {
   // the noise that the select module uses
-  Source  BuilderGet2D
+  Source  NoiseyGet2D
 
   // what to scale the noise value from Source by
   Scale float64
@@ -18,7 +18,7 @@ type Scale2D struct {
 }
 
 // Scale2D creates a new scale 2d module.
-func NewScale2D(src BuilderGet2D, scale float64, bias float64) (scales Scale2D) {
+func NewScale2D(src NoiseyGet2D, scale float64, bias float64) (scales Scale2D) {
   scales.Source = src
   scales.Scale = scale
   scales.Bias = bias

@@ -14,7 +14,7 @@ type Builder2DBounds struct {
 
 // Builder2D contains the parameters and data for the noise 'map' generated with Build().
 type Builder2D struct {
-	Source BuilderGet2D
+	Source NoiseyGet2D
 	Width  int
 	Height int
 	Bounds Builder2DBounds
@@ -22,7 +22,7 @@ type Builder2D struct {
 }
 
 // NewBuilder2D creates a new 2D noise 'map' builder of the given size
-func NewBuilder2D(s BuilderGet2D, width int, height int) (b Builder2D) {
+func NewBuilder2D(s NoiseyGet2D, width int, height int) (b Builder2D) {
 	b.Source = s
 	b.Width = width
 	b.Height = height
