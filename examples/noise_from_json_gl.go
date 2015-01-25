@@ -269,7 +269,7 @@ func generateNoiseImage(imageSize int) []byte {
 	// make an pixel image by calculating random noise and creating
 	// an RGB byte triplet array based off the scaled noise value
 	builder := noisey.NewBuilder2D(fbmPerlin, imageSize, imageSize)
-	builder.Bounds = noisey.Builder2DBounds{0.0, 0.0, 6.0, 6.0}
+	builder.Bounds = noisey.Builder2DBounds{0.0, 0.0, float64(imageSize) * 0.01, float64(imageSize) * 0.01}
 	builder.Build()
 
 	colors := make([]byte, imageSize*imageSize*3)

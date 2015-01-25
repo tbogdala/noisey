@@ -104,10 +104,18 @@ type GeneratorJSON struct {
 	// map that are to be used in this generator.
 	Sources []string
 
+	// Generators is an array of strings that are names in the NoiseJSON.Generators
+	// map that are to be used in this generator.
+	Generators []string
+
 	Octaves     int     // Octaves is generator specific ...
 	Persistence float64 // Persistence is generator specific ...
 	Lacunarity  float64 // Lacunarity is generator specific ...
 	Frequency   float64 // Frequency is generator specific ...
+	LowerBound float64 // LowerBound is generator specific ...
+	UpperBound float64 // LowerBound is generator specific ...
+	Scale float64 // Scale is generator specific ...
+	Bias float64 // Scale is generator specific ...
 }
 
 // SourceJSON describes the source of the random information, like perlin2d.
@@ -233,6 +241,9 @@ func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
 		case "perlin2d":
 			p2d := NewPerlinGenerator2D(r, source.Quality)
 			s = SourceGet2D(&p2d)
+		case "opensimplex2d":
+			os2d := NewOpenSimplexGenerator2D(r)
+			s = SourceGet2D(&os2d)
 		default:
 			return fmt.Errorf("Undefined source type (%s) for source %s.\n", source.SourceType, sourceName)
 		}
@@ -250,25 +261,49 @@ func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
 func (cfg *NoiseJSON) BuildGenerators() error {
 	// loop through all configured generators
 	for genName, gen := range cfg.Generators {
-		// build the array of sources and if one's not found, error out
-		sourceArray := make([]SourceGet2D, len(gen.Sources))
-		for i, ss := range gen.Sources {
-			builtSource, ok := cfg.builtSources[ss]
-			if ok != true {
-				return fmt.Errorf("Generator %s creation failed: couldn't find built source %s.\n", genName, ss)
+		var sourceArray []SourceGet2D
+		var genArray []BuilderGet2D
+
+		// build the array of sources and if one's not found, then return an error
+		if gen.Sources != nil {
+			sourceArray = make([]SourceGet2D, len(gen.Sources))
+			for i, ss := range gen.Sources {
+				builtSource, ok := cfg.builtSources[ss]
+				if ok != true {
+					return fmt.Errorf("Generator \"%s\" creation failed: couldn't find built source \"%s\".\n", genName, ss)
+				}
+				sourceArray[i] = builtSource
 			}
-			sourceArray[i] = builtSource
+		}
+
+		// build the array of generators and if one's not found, then return an error
+		if gen.Generators != nil {
+			genArray = make([]BuilderGet2D, len(gen.Generators))
+			for i, ss := range gen.Generators {
+				builtGen, ok := cfg.builtGenerators[ss]
+				if ok != true {
+					return fmt.Errorf("Generator \"%s\" creation failed: couldn't find built source \"%s\".\n", genName, ss)
+				}
+				genArray[i] = builtGen
+			}
 		}
 
 		var g BuilderGet2D
 		switch gen.GeneratorType {
 		case "fBm2d":
+			fmt.Printf("fBm2d name : %s\n", genName)
 			fbm := NewFBMGenerator2D(sourceArray[0])
 			fbm.Octaves = gen.Octaves
 			fbm.Persistence = gen.Persistence
 			fbm.Lacunarity = gen.Lacunarity
 			fbm.Frequency = gen.Frequency
 			g = BuilderGet2D(&fbm)
+		case "select2d":
+			sel := NewSelect2D(genArray[0], genArray[1], genArray[2], gen.LowerBound, gen.UpperBound)
+			g = BuilderGet2D(&sel)
+		case "scale2d":
+			scale := NewScale2D(genArray[0], gen.Scale, gen.Bias)
+			g = BuilderGet2D(&scale)
 		default:
 			return fmt.Errorf("Undefined generator type (%s) for generator %s.\n", gen.GeneratorType, genName)
 		}

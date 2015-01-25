@@ -3,22 +3,63 @@
 		"Default": 1
 	},
 	"Sources": {
-		"perlin": {
+		"os2d": {
+			"SourceType": "opensimplex2d",
+			"Quality": 0,
+			"Seed": "Default"
+		},
+		"perlin2d": {
 			"SourceType": "perlin2d",
 			"Quality": 2,
 			"Seed": "Default"
 		}
 	},
 	"Generators": {
-		"basic": {
+		"hifreq": {
 			"GeneratorType": "fBm2d",
 			"Sources": [
-				"perlin"
+				"os2d"
 			],
 			"Octaves": 5,
+			"Persistence": 0.75,
+			"Lacunarity": 2.1,
+			"Frequency": 1.33
+		},
+		"flatterSource": {
+			"GeneratorType": "fBm2d",
+			"Sources": [
+				"os2d"
+			],
+			"Octaves": 2,
+			"Persistence": 0.15,
+			"Lacunarity": 1.8,
+			"Frequency": 1.1
+		},
+		"landcontrol": {
+			"GeneratorType": "fBm2d",
+			"Sources": [
+				"perlin2d"
+			],
+			"Octaves": 2,
 			"Persistence": 0.25,
-			"Lacunarity": 2,
-			"Frequency": 1.13
+			"Lacunarity": 1.8,
+			"Frequency": 1.1
+		},
+		"flatter": {
+			"GeneratorType": "scale2d",
+			"Generators": [
+				"flatterSource"
+			],
+			"Scale": 0.10,
+			"Bias": 0.10
+		},
+		"basic": {
+			"GeneratorType": "select2d",
+			"Generators": [
+				"hifreq", "flatter", "landcontrol"
+			],
+			"LowerBound": 0.0,
+			"UpperBound": 100.0
 		}
 	}
 }
