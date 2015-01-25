@@ -42,9 +42,9 @@ import (
 )
 
 var (
-	configFilename                   = "noise.json"
-	noiseBank      *noisey.NoiseJSON = nil
-	noiseTex       gl.Texture
+	configFilename                    = "noise.json"
+	noiseBank       *noisey.NoiseJSON = nil
+	noiseTex        gl.Texture
 	colorizeEnabled bool = true
 
 	// vertex shader
@@ -353,7 +353,7 @@ func loadJSONFile() {
 
 	// build the sources from the JSON file
 	err = noiseBank.BuildSources(func(s int64) noisey.RandomSource {
-		return rand.New(rand.NewSource(int64(s)))
+		return rand.New(rand.NewSource(int64(1)))
 	})
 	if err != nil {
 		panic(err)

@@ -14,8 +14,9 @@
 			"Seed": "Default"
 		}
 	},
-	"Generators": {
-		"hifreq": {
+	"Generators": [
+		{
+			"Name": "hifreq",
 			"GeneratorType": "fBm2d",
 			"Sources": [
 				"os2d"
@@ -25,7 +26,8 @@
 			"Lacunarity": 2.1,
 			"Frequency": 1.33
 		},
-		"flatterSource": {
+		{
+			"Name": "flatterSource",
 			"GeneratorType": "fBm2d",
 			"Sources": [
 				"os2d"
@@ -35,7 +37,8 @@
 			"Lacunarity": 1.8,
 			"Frequency": 1.1
 		},
-		"landcontrol": {
+		{
+			"Name": "landcontrol",
 			"GeneratorType": "fBm2d",
 			"Sources": [
 				"perlin2d"
@@ -45,7 +48,8 @@
 			"Lacunarity": 1.8,
 			"Frequency": 1.1
 		},
-		"flatter": {
+		{
+			"Name": "flatter",
 			"GeneratorType": "scale2d",
 			"Generators": [
 				"flatterSource"
@@ -53,7 +57,8 @@
 			"Scale": 0.40,
 			"Bias": 0.10
 		},
-		"basic": {
+		{
+			"Name": "basic",
 			"GeneratorType": "select2d",
 			"Generators": [
 				"hifreq", "flatter", "landcontrol"
@@ -61,5 +66,5 @@
 			"LowerBound": 0.0,
 			"UpperBound": 100.0
 		}
-	}
+	]
 }

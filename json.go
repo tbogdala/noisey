@@ -86,6 +86,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 )
 
 // RandomSeedBuilder is a type used to construct RandomSource interfaces
@@ -96,6 +97,10 @@ type RandomSeedBuilder func(s int64) RandomSource
 // noisey. Something like a C union, not all of the fields may be applicable
 // to every generator type.
 type GeneratorJSON struct {
+	// Name is the name of the generator that might be referenced by
+	// other GeneratorJSON objects
+	Name string
+
 	// GeneratorType is a type string to identify what generator to create
 	// on BuildGenerators()
 	GeneratorType string
@@ -112,10 +117,10 @@ type GeneratorJSON struct {
 	Persistence float64 // Persistence is generator specific ...
 	Lacunarity  float64 // Lacunarity is generator specific ...
 	Frequency   float64 // Frequency is generator specific ...
-	LowerBound float64 // LowerBound is generator specific ...
-	UpperBound float64 // LowerBound is generator specific ...
-	Scale float64 // Scale is generator specific ...
-	Bias float64 // Scale is generator specific ...
+	LowerBound  float64 // LowerBound is generator specific ...
+	UpperBound  float64 // LowerBound is generator specific ...
+	Scale       float64 // Scale is generator specific ...
+	Bias        float64 // Scale is generator specific ...
 }
 
 // SourceJSON describes the source of the random information, like perlin2d.
@@ -146,13 +151,9 @@ type NoiseJSON struct {
 	// should be built.
 	Sources map[string]SourceJSON
 
-	// Generators uses a name string as a key that can be referenced in other
-	// structures and maps to a GeneratorJSON structre that describes how the noise
-	// generator should be built.
-	Generators map[string]GeneratorJSON
-
-	// builtSeeds are cached RandomSource random number sources built after BuildSources()
-	builtSeeds map[string]RandomSource
+	// Generators is an ordered array of GeneratorJSON objects that define how
+	// noise should be built.
+	Generators []GeneratorJSON
 
 	// builtSources are cached noise providers built after BuildSources()
 	builtSources map[string]SourceGet2D
@@ -167,9 +168,7 @@ func NewNoiseJSON() *NoiseJSON {
 	nj := new(NoiseJSON)
 	nj.Seeds = make(map[string]int64)
 	nj.Sources = make(map[string]SourceJSON)
-	nj.Generators = make(map[string]GeneratorJSON)
 
-	nj.builtSeeds = make(map[string]RandomSource)
 	nj.builtSources = make(map[string]SourceGet2D)
 	nj.builtGenerators = make(map[string]BuilderGet2D)
 
@@ -220,20 +219,20 @@ func (cfg *NoiseJSON) SaveNoiseJSON() ([]byte, error) {
 func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
 	// loop through all configured sources
 	for sourceName, source := range cfg.Sources {
-		// try to get the same seede if it's already built
-		r, ok := cfg.builtSeeds[source.Seed]
-		if ok != true {
-			seed, ok := cfg.Seeds[source.Seed]
-			if ok != true {
-				seed = 1
-			}
+		// get the random source by taking the referenced seed and calling
+		// the seedBuilder() function with it that was passed in.
+		seed, ok := cfg.Seeds[source.Seed]
+		if ok == false {
+			return fmt.Errorf("Source \"%s\" referenced Seed \"%s\" which wasn't found.\n", sourceName, source.Seed)
+		}
 
-			// get the random source by taking the referenced seed and calling
-			// the seedBuilder() function with it that was passed in.
+		// construct the random source using the passed in function if supplied;
+		// otherwise construct a default one.
+		var r RandomSource
+		if seedBuilder != nil {
 			r = seedBuilder(seed)
-
-			// store the result for future generators to share
-			cfg.builtSeeds[source.Seed] = r
+		} else {
+			r = rand.New(rand.NewSource(int64(seed)))
 		}
 
 		var s SourceGet2D
@@ -260,7 +259,7 @@ func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
 // called after BuildSources().
 func (cfg *NoiseJSON) BuildGenerators() error {
 	// loop through all configured generators
-	for genName, gen := range cfg.Generators {
+	for _, gen := range cfg.Generators {
 		var sourceArray []SourceGet2D
 		var genArray []BuilderGet2D
 
@@ -270,7 +269,7 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 			for i, ss := range gen.Sources {
 				builtSource, ok := cfg.builtSources[ss]
 				if ok != true {
-					return fmt.Errorf("Generator \"%s\" creation failed: couldn't find built source \"%s\".\n", genName, ss)
+					return fmt.Errorf("Generator \"%s\" creation failed: couldn't find built source \"%s\".\n", gen.Name, ss)
 				}
 				sourceArray[i] = builtSource
 			}
@@ -282,7 +281,7 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 			for i, ss := range gen.Generators {
 				builtGen, ok := cfg.builtGenerators[ss]
 				if ok != true {
-					return fmt.Errorf("Generator \"%s\" creation failed: couldn't find built source \"%s\".\n", genName, ss)
+					return fmt.Errorf("Generator \"%s\" creation failed: couldn't find built source \"%s\".\n", gen.Name, ss)
 				}
 				genArray[i] = builtGen
 			}
@@ -291,7 +290,6 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 		var g BuilderGet2D
 		switch gen.GeneratorType {
 		case "fBm2d":
-			fmt.Printf("fBm2d name : %s\n", genName)
 			fbm := NewFBMGenerator2D(sourceArray[0])
 			fbm.Octaves = gen.Octaves
 			fbm.Persistence = gen.Persistence
@@ -305,11 +303,11 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 			scale := NewScale2D(genArray[0], gen.Scale, gen.Bias)
 			g = BuilderGet2D(&scale)
 		default:
-			return fmt.Errorf("Undefined generator type (%s) for generator %s.\n", gen.GeneratorType, genName)
+			return fmt.Errorf("Undefined generator type (%s) for generator %s.\n", gen.GeneratorType, gen.Name)
 		}
 
 		// store the result
-		cfg.builtGenerators[genName] = g
+		cfg.builtGenerators[gen.Name] = g
 	}
 
 	return nil
