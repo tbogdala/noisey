@@ -10,13 +10,16 @@ Currently it supports the following:
 * 2D (64-bit) [Perlin noise][link1]
 * 2D (64-bit) [OpenSimplex noise][link3]
 
-### Modifiers
+### Generators and Modifiers
 
-* fBm 2D - fractal Brownian Motion
-* select 2d - choose from source A or B depending on control source
-* scale 2d - modify output by multiplying by a scale and adding a bias constant
+* FBMGenerator2D - fractal Brownian Motion
+* Select2D - choose from source A or B depending on control source
+* Scale2D - modify output by multiplying by a scale and adding a bias constant
 
-**IMPORTANT: This is a new library and API stability is not guaranteed.**
+Additionally, noisey can load settings from a JSON configuration file and create
+sources and generators from that.
+
+**IMPORTANT: This is a new library and API stability is not guaranteed (though 1.0 is getting close).**
 
 
 Installation
@@ -84,7 +87,7 @@ Samples that display noise to console or OpenGL windows are included. If the
 OpenGL examples are desired, you must also install the Go libraries
 `github.com/go-gl/gl` and `github.com/go-gl/glfw3`
 
-Other noise generators like OpenSimple can be used in similar manner. Just
+Other noise generators like OpenSimplex can be used in similar manner. Just
 create the noise generator with the constructor by passing a random number generator:
 
 ```go
@@ -112,8 +115,6 @@ To Do
 -----
 
 * 3D noise algorithms
-* a way to combine noise generators and modifiers to support
-things like libnoise's [complex planetary surface][link2]
 
 
 License

@@ -23,13 +23,14 @@ type FBMGenerator2D struct {
 	Frequency   float64     // the number of cycles per unit length
 }
 
-// NewFBMGenerator2D creates a new fractal Brownian motion generator state.
-func NewFBMGenerator2D(noise NoiseyGet2D) (fbm FBMGenerator2D) {
+// NewFBMGenerator2D creates a new fractal Brownian motion generator state. A 'default' fBm
+// would have 1 octave, 0.5 persistence, 2.0 lacunarity and 1.0 frequency.
+func NewFBMGenerator2D(noise NoiseyGet2D, octaves int, persistence float64, lacunarity float64, frequency float64) (fbm FBMGenerator2D) {
 	fbm.NoiseMaker = noise
-	fbm.Octaves = 1
-	fbm.Persistence = 0.5
-	fbm.Lacunarity = 2.0
-	fbm.Frequency = 1.0
+	fbm.Octaves = octaves
+	fbm.Persistence = persistence
+	fbm.Lacunarity = lacunarity
+	fbm.Frequency = frequency
 	return
 }
 

@@ -250,7 +250,7 @@ func generateNoiseImage(imageSize int, r noisey.RandomSource) []byte {
 	perlin := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
 
 	// create the fractal Brownian motion generator based on perlin
-	fbmPerlin := noisey.NewFBMGenerator2D(&perlin)
+	fbmPerlin := noisey.NewFBMGenerator2D(&perlin, 1, 0.5, 2.0, 1.0)
 
 	// make an pixel image by calculating random noise and creating
 	// an RGB byte triplet array based off the scaled noise value

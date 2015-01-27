@@ -291,11 +291,7 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 		var g NoiseyGet2D
 		switch gen.GeneratorType {
 		case "fBm2d":
-			fbm := NewFBMGenerator2D(sourceArray[0])
-			fbm.Octaves = gen.Octaves
-			fbm.Persistence = gen.Persistence
-			fbm.Lacunarity = gen.Lacunarity
-			fbm.Frequency = gen.Frequency
+			fbm := NewFBMGenerator2D(sourceArray[0], gen.Octaves, gen.Persistence, gen.Lacunarity, gen.Frequency)
 			g = NoiseyGet2D(&fbm)
 		case "select2d":
 			sel := NewSelect2D(genArray[0], genArray[1], genArray[2], gen.LowerBound, gen.UpperBound, gen.EdgeFalloff)

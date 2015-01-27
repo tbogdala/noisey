@@ -6,6 +6,17 @@ The selection is currently very limited and consists of:
 	* 2D Perlin noise (64bit)
 	* 2D OpenSimplex noise (64bit)
 
+The sources above can be combined with different generators and modifiers
+like the following:
+
+	* FBMGenerator2D - fractal Brownian Motion
+	* Select2D - choose from source A or B depending on control source
+	* Scale2D - modify output by multiplying by a scale and adding a bias constant
+
+
+Once the noise generators have been set up, a Builder2D object can be created
+to map a region of noise into a float64 array.
+
 An interface called 'RandomSource' is also exported so that a client can implement
 a different random number generator and pass it to the noise generators.
 
