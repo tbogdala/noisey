@@ -21,7 +21,7 @@ func BenchmarkPerlin2D(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for y := 0; y < benchSize; y++ {
 			for x := 0; x < benchSize; x++ {
-				sum += perlin.GetValue2D(float64(x), float64(y))
+				sum += perlin.Get2D(float64(x), float64(y))
 			}
 		}
 	}
@@ -41,7 +41,7 @@ func BenchmarkOpenSimplex2D(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for y := 0; y < benchSize; y++ {
 			for x := 0; x < benchSize; x++ {
-				sum += openSimplex.GetValue2D(float64(x), float64(y))
+				sum += openSimplex.Get2D(float64(x), float64(y))
 			}
 		}
 	}
