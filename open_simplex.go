@@ -172,10 +172,10 @@ func (osg *OpenSimplexGenerator2D) Get2D(x float64, y float64) float64 {
 				dy_ext = dy0 - 2 - 2*squishConstant2D
 			}
 		} else { // (1,0) and (0,1) are the closest two vertices
-			xsv_ext = int(dx0)
-			ysv_ext = int(dy0)
-			dx_ext = float64(xsb)
-			dy_ext = float64(ysb)
+			dx_ext = dx0
+			dy_ext = dy0
+			xsv_ext = xsb
+			ysv_ext = ysb
 		}
 		xsb += 1
 		ysb += 1
