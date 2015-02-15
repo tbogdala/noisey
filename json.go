@@ -122,6 +122,8 @@ type GeneratorJSON struct {
 	EdgeFalloff float64 // EdgeFalloff is generator specific ...
 	Scale       float64 // Scale is generator specific ...
 	Bias        float64 // Scale is generator specific ...
+	Min         float64 // Min is generator specific ...
+	Max         float64 // Min is generator specific ...
 }
 
 // SourceJSON describes the source of the random information, like perlin2d.
@@ -235,10 +237,10 @@ func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
 
 		var s NoiseyGet2D
 		switch source.SourceType {
-		case "perlin2d":
+		case "perlin":
 			p2d := NewPerlinGenerator(r)
 			s = NoiseyGet2D(&p2d)
-		case "opensimplex2d":
+		case "opensimplex":
 			os2d := NewOpenSimplexGenerator(r)
 			s = NoiseyGet2D(&os2d)
 		default:
@@ -294,7 +296,7 @@ func (cfg *NoiseJSON) BuildGenerators() error {
 			sel := NewSelect2D(genArray[0], genArray[1], genArray[2], gen.LowerBound, gen.UpperBound, gen.EdgeFalloff)
 			g = NoiseyGet2D(&sel)
 		case "scale2d":
-			scale := NewScale2D(genArray[0], gen.Scale, gen.Bias)
+			scale := NewScale2D(genArray[0], gen.Scale, gen.Bias, gen.Min, gen.Max)
 			g = NoiseyGet2D(&scale)
 		default:
 			return fmt.Errorf("Undefined generator type (%s) for generator %s.\n", gen.GeneratorType, gen.Name)

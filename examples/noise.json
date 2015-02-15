@@ -4,11 +4,11 @@
 	},
 	"Sources": {
 		"os2d": {
-			"SourceType": "opensimplex2d",
+			"SourceType": "opensimplex",
 			"Seed": "Default"
 		},
 		"perlin2d": {
-			"SourceType": "perlin2d",
+			"SourceType": "perlin",
 			"Seed": "Default"
 		}
 	},
@@ -53,7 +53,9 @@
 				"flatterSource"
 			],
 			"Scale": 0.40,
-			"Bias": 0.10
+			"Bias": 0.10,
+			"Min": -1.0,
+			"Max": 1.0
 		},
 		{
 			"Name": "basic",
