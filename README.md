@@ -7,8 +7,8 @@ Currently it supports the following:
 
 ### Sources
 
-* 2D (64-bit) [Perlin noise][link1]
-* 2D (64-bit) [OpenSimplex noise][link3]
+* 2D/3D (64-bit) [Perlin noise][link1]
+* 2D/3D (64-bit) [Open Simplex noise][link3]
 
 ### Generators and Modifiers
 
@@ -52,10 +52,10 @@ import "github.com/tbogdala/noisey"
 r := rand.New(rand.NewSource(int64(1)))
 
 // create a new perlin noise generator using the RNG created above
-perlin := noisey.NewPerlinGenerator2D(r, noisey.StandardQuality)
+perlin := noisey.NewPerlinGenerator(r)
 
 // get the noise value at point (0.4, 0.2)
-v := perlin.GetValue2D(0.4, 0.2)
+v := perlin.Get2D(0.4, 0.2)
 ```
 
 If you want "smooth" noise, or fractal Brownian motion, then you use
@@ -70,7 +70,7 @@ import "github.com/tbogdala/noisey"
 r := rand.New(rand.NewSource(int64(1)))
 
 // create a new Perlin noise generator using the RNG created above
-noiseGen := noisey.NewPerlinGenerator2D(r, noisey.HighQuality)
+noiseGen := noisey.NewPerlinGenerator(r)
 
 // create the fractal Brownian motion modifier based on Perlin
 fbmPerlin := noisey.NewFBMGenerator2D(&noiseGen)
@@ -87,7 +87,7 @@ Samples that display noise to console or OpenGL windows are included. If the
 OpenGL examples are desired, you must also install the Go libraries
 `github.com/go-gl/gl` and `github.com/go-gl/glfw3`
 
-Other noise generators like OpenSimplex can be used in similar manner. Just
+Other noise generators like Open Simplex can be used in similar manner. Just
 create the noise generator with the constructor by passing a random number generator:
 
 ```go
@@ -95,7 +95,7 @@ create the noise generator with the constructor by passing a random number gener
 r := rand.New(rand.NewSource(int64(1)))
 
 // create a new OpenSimplex noise generator using the RNG created above
-opensimplex := noisey.NewOpenSimplexGenerator2D(r)
+opensimplex := noisey.NewOpenSimplexGenerator(r)
 ```
 
 Benchmarks
@@ -110,11 +110,6 @@ go test -cpu 4 -bench .
 
 The cpu flag can be adjusted accordingly, but shouldn't make a difference since
 the generators don't improve in parallel operation.
-
-To Do
------
-
-* 3D noise algorithms
 
 
 License

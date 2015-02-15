@@ -1,10 +1,10 @@
 /*
 Package noisey is a library that implements coherent noise algorithms.
 
-The selection is currently very limited and consists of:
+The selection is currently:
 
-	* 2D Perlin noise (64bit)
-	* 2D OpenSimplex noise (64bit)
+	* 2D/3D Perlin noise (64bit)
+	* 2D/3D OpenSimplex noise (64bit)
 
 The sources above can be combined with different generators and modifiers
 like the following:
@@ -38,9 +38,34 @@ type NoiseyGet2D interface {
 	Get2D(float64, float64) float64
 }
 
+// NoiseyGet3D is an interface defining how the modules types get noise from a source.
+type NoiseyGet3D interface {
+	Get3D(float64, float64, float64) float64
+}
+
 // Vec2f is a simple 2D vector of 64 bit floats
 type Vec2f struct {
 	X, Y float64
+}
+
+// Vec3f is a simple 3D vector of 64 bit floats
+type Vec3f struct {
+	X, Y, Z float64
+}
+
+// Vec4f is a simple 4D vector of 64 bit floats
+type Vec4f struct {
+	X, Y, Z, W float64
+}
+
+// Vec2i is a simple 3D vector of ints
+type Vec2i struct {
+	X, Y int
+}
+
+// Vec3i is a simple 3D vector of ints
+type Vec3i struct {
+	X, Y, Z int
 }
 
 func calcCubicSCurve(v float64) float64 {

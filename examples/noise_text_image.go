@@ -20,8 +20,8 @@ func main() {
 	// make a test generator seeded to 1
 	r := rand.New(rand.NewSource(int64(1)))
 
-	// create a new perlin noise generator with 'standard' quality
-	perlin := noisey.NewPerlinGenerator2D(r, noisey.StandardQuality)
+	// create a new perlin noise generator
+	perlin := noisey.NewPerlinGenerator(r)
 
 	// create the fractal Brownian motion generator based on perlin
 	fbmPerlin := noisey.NewFBMGenerator2D(&perlin, 1.0, 0.5, 2.0, 1.0)

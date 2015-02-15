@@ -5,12 +5,10 @@
 	"Sources": {
 		"os2d": {
 			"SourceType": "opensimplex2d",
-			"Quality": 0,
 			"Seed": "Default"
 		},
 		"perlin2d": {
 			"SourceType": "perlin2d",
-			"Quality": 2,
 			"Seed": "Default"
 		}
 	},

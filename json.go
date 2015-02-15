@@ -130,9 +130,6 @@ type SourceJSON struct {
 	// on BuildSources().
 	SourceType string
 
-	// Quality is source module specific ...
-	Quality int
-
 	// Seed is a string that needs to be a name in the NoiseJSON.Seeds map that
 	// is to be used in this generator.
 	Seed string
@@ -239,10 +236,10 @@ func (cfg *NoiseJSON) BuildSources(seedBuilder RandomSeedBuilder) error {
 		var s NoiseyGet2D
 		switch source.SourceType {
 		case "perlin2d":
-			p2d := NewPerlinGenerator2D(r, source.Quality)
+			p2d := NewPerlinGenerator(r)
 			s = NoiseyGet2D(&p2d)
 		case "opensimplex2d":
-			os2d := NewOpenSimplexGenerator2D(r)
+			os2d := NewOpenSimplexGenerator(r)
 			s = NoiseyGet2D(&os2d)
 		default:
 			return fmt.Errorf("Undefined source type (%s) for source %s.\n", source.SourceType, sourceName)
