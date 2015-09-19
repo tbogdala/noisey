@@ -30,14 +30,14 @@ Hit `c` to toggle the colorize effect.
 */
 
 import (
+	"fmt"
 	gl "github.com/go-gl/gl/v3.3-core/gl"
 	glfw "github.com/go-gl/glfw/v3.1/glfw"
 	mgl "github.com/go-gl/mathgl/mgl32"
 	"github.com/tbogdala/noisey"
+	"io/ioutil"
 	"math"
 	"math/rand"
-	"fmt"
-	"io/ioutil"
 )
 
 var (
@@ -45,9 +45,9 @@ var (
 	noiseBank       *noisey.NoiseJSON = nil
 	noiseTex        uint32
 	colorizeEnabled bool = true
-	imageSize = int32(512)
+	imageSize            = int32(512)
 
-	app *ExampleApp
+	app   *ExampleApp
 	plane *Renderable
 )
 

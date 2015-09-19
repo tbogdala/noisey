@@ -792,7 +792,6 @@ func CreatePlaneXY(x0, y0, x1, y1 float32, scaleUVs float32) *Renderable {
 	return createPlane(x0, y0, x1, y1, verts, indexes, uvs, normals)
 }
 
-
 func createPlane(x0, y0, x1, y1 float32, verts [12]float32, indexes [6]uint32, uvs [8]float32, normals [12]float32) *Renderable {
 	const floatSize = 4
 	const uintSize = 4

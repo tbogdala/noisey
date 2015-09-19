@@ -37,7 +37,7 @@ import (
 )
 
 var (
-	app *ExampleApp
+	app   *ExampleApp
 	plane *Renderable
 )
 

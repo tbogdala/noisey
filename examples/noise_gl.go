@@ -37,10 +37,9 @@ import (
 )
 
 var (
-	app *ExampleApp
+	app   *ExampleApp
 	plane *Renderable
 )
-
 
 func keyCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
 	if key == glfw.KeyEscape && action == glfw.Press {
