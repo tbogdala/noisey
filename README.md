@@ -38,6 +38,20 @@ import "github.com/tbogdala/noisey"
 ```
 
 
+Samples
+-------
+
+Noisey comes with a couple examples to show how noise is built:
+
+* noise_text_image: outputs noise through a text gradient to terminal
+* noise_gl : makes a simple texture and draws it with OpenGL
+* noise_builder_gl: uses the noise builder to compose noise and displays the texture in OpenGL
+* noise_from_json_gl: creates the noise builder from JSON and then displays the texture in OpenGL
+
+Below is a screen shot of what noise_from_json_gl outputs.
+
+![noise_from_json_gl][noise_from_json]
+
 Usage
 -----
 
@@ -122,3 +136,4 @@ Noisey is released under the BSD license. See the `LICENSE` file for more detail
 [link1]: http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/perlin-noise-math-faq.html
 [link2]: http://libnoise.sourceforge.net/examples/complexplanet/index.html
 [link3]: http://uniblock.tumblr.com/post/97868843242/noise
+[noise_from_json]: https://raw.githubusercontent.com/tbogdala/noisey/master/examples/screenshots/noise_from_json_gl-150919.png
