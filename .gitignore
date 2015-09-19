@@ -2,4 +2,9 @@ examples/glfw3.dll
 examples/noise_gl.exe
 examples/noise_text_image.exe
 examples/noise_builder_gl.exe
+examples/noise_from_json_gl.exe
+examples/noise_gl
+examples/noise_text_image
+examples/noise_builder_gl
+examples/noise_from_json_gl
 *.exe
