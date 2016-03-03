@@ -11,14 +11,15 @@ import (
 	"strings"
 	"time"
 
-	gl "github.com/go-gl/gl/v3.3-core/gl"
-	glfw "github.com/go-gl/glfw/v3.1/glfw"
-	mgl "github.com/go-gl/mathgl/mgl32"
-	"github.com/tbogdala/cubez"
 	"image"
 	"image/draw"
 	"image/png"
 	"os"
+
+	gl "github.com/go-gl/gl/v3.3-core/gl"
+	glfw "github.com/go-gl/glfw/v3.1/glfw"
+	mgl "github.com/go-gl/mathgl/mgl32"
+	"github.com/tbogdala/cubez"
 )
 
 var (
@@ -468,9 +469,10 @@ func LoadShaderProgram(vertShader, fragShader string) (uint32, error) {
 
 	// create the vertex shader
 	vs := gl.CreateShader(gl.VERTEX_SHADER)
-	cVertShader := gl.Str(vertShader + "\x00")
-	gl.ShaderSource(vs, 1, &cVertShader, nil)
+	cVertShader, free := gl.Strs(vertShader + "\x00")
+	gl.ShaderSource(vs, 1, cVertShader, nil)
 	gl.CompileShader(vs)
+	free()
 
 	var status int32
 	gl.GetShaderiv(vs, gl.COMPILE_STATUS, &status)
@@ -488,9 +490,10 @@ func LoadShaderProgram(vertShader, fragShader string) (uint32, error) {
 
 	// create the fragment shader
 	fs := gl.CreateShader(gl.FRAGMENT_SHADER)
-	cFragShader := gl.Str(fragShader + "\x00")
-	gl.ShaderSource(fs, 1, &cFragShader, nil)
+	cFragShader, free := gl.Strs(fragShader + "\x00")
+	gl.ShaderSource(fs, 1, cFragShader, nil)
 	gl.CompileShader(fs)
+	free()
 
 	gl.GetShaderiv(fs, gl.COMPILE_STATUS, &status)
 	if status == gl.FALSE {
