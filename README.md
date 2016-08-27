@@ -1,7 +1,8 @@
-noisey: a Go library for coherent random noise
-==============================================
+Noisey v1.0.0
+=============
 
-This library natively implements coherent noise algorithms in Go. No 3rd party libraries are required.
+This library natively implements coherent noise algorithms in Go.
+No 3rd party libraries are required.
 
 Currently it supports the following:
 
@@ -18,8 +19,6 @@ Currently it supports the following:
 
 Additionally, noisey can load settings from a JSON configuration file and create
 sources and generators from that.
-
-**IMPORTANT: This is a new library and API stability is not guaranteed (though 1.0 is getting close).**
 
 
 Installation
